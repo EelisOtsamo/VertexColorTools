@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+
 from bpy.types import (
 	Panel,
 	UILayout,
@@ -8,7 +9,11 @@ from bpy.types import (
 
 from bpy.utils import unregister_class, register_class
 
-from ..preferences import EDITVERTCOL_PropertyGroup
+from ..preferences import (
+	EDITVERTCOL_PropertyGroup,
+	addon_preferences,
+	palette_addon
+)
 
 from ..operators.edit import (
 	EDITVERTCOL_OT_Preview,
@@ -24,7 +29,8 @@ from ..operators.sidepanel import (
 	EDITVERTCOL_OT_CopyActiveCorner,
 	EDITVERTCOL_OT_PaletteColorAdd,
 	EDITVERTCOL_OT_PaletteColorRemove,
-	EDITVERTCOL_OT_PaletteColorReset
+	EDITVERTCOL_OT_PaletteColorReset,
+	EDITVERTCOL_OT_PaletteColorSelect
 )
 
 from ..operators.paint_gradient import (
@@ -104,18 +110,6 @@ class EDITVERTCOL_PT_Panel(Panel):
 		active_only_col.prop(props, 'active_only')
 
 		grid.prop(props, 'clip_colors')
-
-		row = col.row(align=True)
-		row.operator(EDITVERTCOL_OT_PaletteColorAdd.bl_idname, icon='ADD', text="")
-		row.operator(EDITVERTCOL_OT_PaletteColorRemove.bl_idname, icon='REMOVE', text="")
-		row.operator(EDITVERTCOL_OT_PaletteColorReset.bl_idname, icon='LOOP_BACK', text="")
-
-		grid = col.grid_flow(align=True, columns=-5, row_major=True)
-		grid.use_property_decorate = False
-		grid.use_property_split = False
-		palette = context.scene.EditVertexColorsPalette
-		for prop in palette:
-			grid.prop(prop, "color", icon_only=True, icon='BRUSH_DATA')
 
 
 class EDITVERTCOL_PT_UtilityPanel(Panel):
@@ -229,19 +223,114 @@ class EDITVERTCOL_PT_ConvertPanel(Panel):
 		# Clip
 		col.operator(EDITVERTCOL_OT_Clip.bl_idname, text="Clip All Colors", icon='SEQ_HISTOGRAM')
 
-	
+
+class EDITVERTCOL_PT_PalettePanel(Panel):
+	bl_idname = "EDITVERTCOL_PT_palette_panel"
+	bl_label = "Color Palette"
+	bl_parent_id = EDITVERTCOL_PT_Panel.bl_idname
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+	bl_category = "Edit"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	@classmethod
+	def poll(cls, context: Context):
+		return context.mode == 'EDIT_MESH' and context.edit_object
+
+	def draw(self, context: Context):
+		prefs = addon_preferences()
+		if prefs.palette_addon_enabled and palette_addon():
+			# Use the palette addon's palette
+			self.draw_palette_addon(context)
+		else:
+			# Simple palette ui
+			layout = self.layout
+			col = layout.column()
+			row = col.row(align=True)
+			row.operator(EDITVERTCOL_OT_PaletteColorAdd.bl_idname, icon='ADD', text="")
+			row.operator(EDITVERTCOL_OT_PaletteColorRemove.bl_idname, icon='REMOVE', text="")
+			row.operator(EDITVERTCOL_OT_PaletteColorReset.bl_idname, icon='LOOP_BACK', text="")
+			
+			grid = col.grid_flow(align=True, columns=0, row_major=True, even_columns=True)
+			grid.use_property_decorate = False
+			grid.use_property_split = False
+			palette = context.scene.EditVertexColorsPalette
+			for i, prop in enumerate(palette):
+				color_container = grid.column(align=True)
+				color_container.ui_units_x = 2
+				color_container.ui_units_y = 2
+				color_container.prop(prop, "color", icon_only=True, icon='BRUSH_DATA')
+				color_container.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text="", icon='BRUSH_DATA').color_index = i
+
+
+	def draw_palette_addon(self, context: Context):
+		mod = palette_addon()
+
+		# Modified from blender/4.0/scripts/addons/paint_palette.py
+		# SPDX-FileCopyrightText: 2011 Dany Lebel (Axon_D)
+		#
+		# SPDX-License-Identifier: GPL-2.0-or-later
+
+		palette_props = context.scene.palette_props
+
+		layout = self.layout
+
+		row = layout.row(align=True)
+		row.menu("PALETTE_MT_menu", text=mod.PALETTE_MT_menu.bl_label)
+		row.operator("palette.preset_add", text="", icon='ADD').remove_active = False
+		row.operator("palette.preset_add", text="", icon='REMOVE').remove_active = True
+
+		col = layout.column(align=True)
+		row = col.row(align=True)
+		row.operator("palette_props.add_color", icon='ADD')
+		row.prop(palette_props, "index")
+		row.operator("palette_props.remove_color", icon="PANEL_CLOSE")
+
+		row = col.row(align=True)
+		row.prop(palette_props, "columns")
+		if palette_props.colors.items():
+			layout = col.box()
+			row = layout.row(align=True)
+			row.prop(palette_props, "color_name")
+			row.operator("palette_props.sample_tool_color", icon="COLOR")
+
+		laycol = layout.column(align=False)
+
+		if palette_props.columns:
+			columns = palette_props.columns
+		else:
+			columns = 16
+
+		for i, color in enumerate(palette_props.colors):
+			if not i % columns:
+				row1 = laycol.row(align=True)
+				row1.scale_y = 0.8
+				row2 = laycol.row(align=True)
+				row2.scale_y = 0.8
+
+			active = True if i == palette_props.current_color_index else False
+			icons = "LAYER_ACTIVE" if active else "LAYER_USED"
+			row1.prop(palette_props.colors[i], "color", event=True, toggle=True)
+			row2.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text=" ",
+						emboss=active, icon=icons).color_index = i
+
+		layout = self.layout
+		row = layout.row()
+		row.prop(palette_props, "presets_folder", text="")
+
+
 panels = (
 	EDITVERTCOL_PT_Panel,
+	EDITVERTCOL_PT_PalettePanel,
 	EDITVERTCOL_PT_UtilityPanel,
 	EDITVERTCOL_PT_ConvertPanel,
 )
-
 
 def register():
 	for cls in panels:
 		register_class(cls)
 
-def unregister():
 
+def unregister():
 	for cls in reversed(panels):
 		unregister_class(cls)

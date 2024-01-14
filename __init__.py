@@ -14,13 +14,14 @@ bl_info = {
 
 import bpy
 
-from . import preferences, tools, operators, ui
+from . import preferences, tools, operators, ui, paint_palette_compat
 
 
 def register():
 	operators.register()
 
 	preferences.register()
+	paint_palette_compat.register()
 
 	if not bpy.app.background:
 		ui.register()
@@ -32,6 +33,7 @@ def unregister():
 		tools.unregister_tools()
 		ui.unregister()
 
+	paint_palette_compat.unregister()
 	preferences.unregister()
 
 	operators.unregister()

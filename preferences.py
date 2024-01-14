@@ -1,6 +1,13 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from bpy.types import PropertyGroup, Scene
+import sys
+import addon_utils
+
+from bpy.types import (
+	PropertyGroup,
+	Scene,
+	AddonPreferences)
+
 import bpy.utils
 from bpy.props import (
     FloatProperty,
@@ -12,6 +19,41 @@ from bpy.props import (
 
 from .internal.color_utils import BLEND_MODE_ITEMS
 from bpy.app.handlers import persistent
+
+class EDITVERTCOL_AddonPreferences(AddonPreferences):
+	bl_idname = __package__
+	
+	_property_callbacks: dict = {}
+
+	@classmethod
+	def register_callback(self, attribute_name: str, callback: callable):
+		if not attribute_name in __class__._property_callbacks:
+			__class__._property_callbacks[attribute_name] = []
+		__class__._property_callbacks[attribute_name].append(callback)
+
+
+	def notify(self, attribute_name: str):
+		for callback in self._property_callbacks.get(attribute_name, []):
+			callback(self.get(attribute_name))
+
+
+	palette_addon_enabled : bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
+
+	paint_palette_addon_compatibility : bpy.props.BoolProperty(
+		name="Paint Palette Intergration",
+		default=True,
+		description="Enable to use the Blender built-in Paint Palette add-on for color palettes, if it is enabled",
+		update=lambda self, _: self.notify("paint_palette_addon_compatibility"),
+	)
+
+	def draw(self, context):
+		layout = self.layout
+		row = layout.row()
+		row.prop(self, "paint_palette_addon_compatibility")
+		layout.label(text="Note: Requires the built-in \"Paint Palette\" add-on to be enabled")
+		layout.label(text="Paint Palette colors cannot store the alpha channel and values are limited to 0-1")
+
+
 
 class EDITVERTCOL_PropertyGroup(PropertyGroup):
 	'''
@@ -80,9 +122,20 @@ def _post_load_handler(_) -> None:
 	load_palette_defaults(palette)
 
 
+def addon_preferences() -> EDITVERTCOL_AddonPreferences:
+	return bpy.context.preferences.addons[__package__].preferences
+
+def palette_addon():
+	loaded_default, loaded_state = addon_utils.check('paint_palette')
+	if not loaded_state:
+		return None
+	return sys.modules.get('paint_palette')
+
+
 classes = (
-	EDITVERTCOL_PropertyGroup,
-	EDITVERTCOL_PaletteColor
+	EDITVERTCOL_AddonPreferences,
+	EDITVERTCOL_PaletteColor,
+	EDITVERTCOL_PropertyGroup
 )
 
 def register():
