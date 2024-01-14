@@ -37,14 +37,17 @@ class EDITVERTCOL_OT_Apply(Operator):
 	def execute(self, context: Context):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
 		
-		bpy.ops.edit_vertex_colors.paint_color(
+		try:
+			bpy.ops.edit_vertex_colors.paint_color(
 			blend_mode	= props.blend_mode,
 			brush_color	= props.brush_color,
 			factor		= props.factor,
 			clip_colors	= props.clip_colors,
 			active_only	= props.active_only
 		)
-
+		except Exception as e:
+			self.report({'ERROR_INVALID_INPUT'}, e.args[0])
+			
 		return {'FINISHED'}
 
 
