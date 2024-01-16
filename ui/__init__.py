@@ -16,6 +16,7 @@ from ..operators.sidepanel import (
 
 
 def draw_context_menu(self, context: bpy.types.Context):
+	self.layout.separator()
 	self.layout.operator(EDITVERTCOL_OT_Apply.bl_idname, icon='BRUSH_DATA')
 
 def draw_select_similar(self, context: bpy.types.Context):
@@ -51,7 +52,7 @@ def register():
 	for mod in submodules:
 		mod.register()
 
-	bpy.types.VIEW3D_MT_edit_mesh_context_menu.prepend(draw_context_menu)
+	bpy.types.VIEW3D_MT_edit_mesh_context_menu.append(draw_context_menu)
 	bpy.types.VIEW3D_MT_edit_mesh_select_similar.append(draw_select_similar)
 	bpy.types.VIEW3D_MT_edit_mesh_vertices.append(draw_edit_mesh)
 
