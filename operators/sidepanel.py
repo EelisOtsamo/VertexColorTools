@@ -223,84 +223,47 @@ class EDITVERTCOL_OT_PaletteColorRemove(Operator):
 class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 	bl_idname = "edit_vertex_colors.palette_select_color"
 	bl_label = "Select Palette Color"
-	bl_description = "Select this color (hold shift to only apply)"
+	bl_description = "Select color (SHIFT to quick apply, CTRL to select and apply)"
 	bl_options = {'UNDO', 'INTERNAL', 'REGISTER'}
 
 	color_index: IntProperty()
-	select_color: BoolProperty(default=False)
+
+	@classmethod
+	def poll(self, context: Context):
+		return context.area.type == 'VIEW_3D' and context.mode == 'EDIT_MESH'
 
 	def invoke(self, context: Context, event: Event):
-		prefs = addon_preferences()
-		if prefs.palette_addon_enabled and palette_addon():
-			return self.invoke_compat(context, event)
-		else:
-			return self.invoke_default(context, event)
-
-
-	def invoke_default(self, context: Context, event: Event):
-		if not event.shift:
-			self.select_color = True
-			""" palette = context.scene.EditVertexColorsPalette
-			props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
-			props.brush_color = palette[self.color_index].color """
-
-		return self.execute(context)
-		
-
-	def invoke_compat(self, context: Context, event: Event):
-		if context.area.type == 'VIEW_3D' and context.mode == 'EDIT_MESH' and context.edit_object and event.shift:
+		if event.shift:
 			return self.execute(context)
+		elif event.ctrl:
+			self.execute(context)
+		
+		if addon_preferences().palette_addon_enabled and palette_addon():
+			palette_props = context.scene.palette_props
+			palette_props.current_color_index = self.color_index
+			palette_addon().update_panels()
 
-		prefs = addon_preferences()
-
-		palette_props = context.scene.palette_props
-		palette_props.current_color_index = self.color_index
-
-		palette_addon().update_panels()
-
-		return {'FINISHED'}
-
-	
-	def execute(self, context: Context):
-		prefs = addon_preferences()
-		if prefs.palette_addon_enabled and palette_addon():
-			return self.execute_compat(context)
 		else:
-			return self.execute_default(context)
-
-
-	def execute_default(self, context: Context):
-		palette = context.scene.EditVertexColorsPalette
-		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
-		
-		if self.select_color:
+			palette = context.scene.EditVertexColorsPalette
+			props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
 			props.brush_color = palette[self.color_index].color
-
-		try:
-			bpy.ops.edit_vertex_colors.paint_color(
-				blend_mode	= props.blend_mode,
-				brush_color	= palette[self.color_index].color,
-				factor		= props.factor,
-				clip_colors	= props.clip_colors,
-				active_only	= props.active_only
-			)
-		except Exception as e:
-			self.report({'ERROR_INVALID_INPUT'}, e.args[0].split("poll() ")[-1])
-			return {'CANCELLED'}
-
-
 		return {'FINISHED'}
 
 
-	def execute_compat(self, context: Context):
-		palette_props = context.scene.palette_props
-		palette_color = palette_props.colors[self.color_index].color
-
-		color = [0,0,0,1]
-		color[:3] = [srgb_to_linear(c) for c in palette_color[:3]]
-		
+	def execute(self, context: Context):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
-		
+
+		if addon_preferences().palette_addon_enabled and palette_addon():
+			palette_props = context.scene.palette_props
+			palette_color = palette_props.colors[self.color_index].color
+
+			color = [0,0,0,1]
+			color[:3] = [srgb_to_linear(c) for c in palette_color[:3]]
+			
+		else:
+			palette = context.scene.EditVertexColorsPalette
+			color = palette[self.color_index].color
+
 		try:
 			bpy.ops.edit_vertex_colors.paint_color(
 				blend_mode	= props.blend_mode,
@@ -313,7 +276,10 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 			self.report({'ERROR_INVALID_INPUT'}, e.args[0].split("poll() ")[-1])
 			return {'CANCELLED'}
 
+
 		return {'FINISHED'}
+
+
 
 
 def vector_clipboard_format(vec: mathutils.Vector) -> str:
