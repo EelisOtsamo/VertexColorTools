@@ -260,7 +260,7 @@ class EDITVERTCOL_PT_PalettePanel(Panel):
 				color_container.ui_units_x = 2
 				color_container.ui_units_y = 2
 				color_container.prop(prop, "color", icon_only=True, icon='BRUSH_DATA')
-				color_container.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text="", icon='BRUSH_DATA').color_index = i
+				color_container.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text="", icon='LAYER_ACTIVE').color_index = i
 
 
 	def draw_palette_addon(self, context: Context):
@@ -308,11 +308,10 @@ class EDITVERTCOL_PT_PalettePanel(Panel):
 				row2 = laycol.row(align=True)
 				row2.scale_y = 0.8
 
-			active = True if i == palette_props.current_color_index else False
+			active = i == palette_props.current_color_index
 			icons = "LAYER_ACTIVE" if active else "LAYER_USED"
 			row1.prop(palette_props.colors[i], "color", event=True, toggle=True)
-			row2.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text=" ",
-						emboss=active, icon=icons).color_index = i
+			row2.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text=" ", emboss=not active, icon=icons).color_index = i
 
 		layout = self.layout
 		row = layout.row()
