@@ -3,7 +3,7 @@
 bl_info = {
 	'name': "Vertex Color Tools",
 	'author': "Eelis Otsamo",
-	'version': (1, 0, 0),
+	'version': (1, 1, 0),
 	'blender': (3, 2, 0),
 	'description': "Modify, select, and paint gradients using vertex colors.",
     'support': 'COMMUNITY',
