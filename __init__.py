@@ -1,16 +1,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-bl_info = {
-	'name': "Vertex Color Tools",
-	'author': "Eelis Otsamo",
-	'version': (1, 1, 0),
-	'blender': (3, 2, 0),
-	'description': "Modify, select, and paint gradients using vertex colors.",
-    'support': 'COMMUNITY',
-	'category': 'Paint',
-	'location': "View 3D > Sidebar > Edit (Edit Mode)",
-	'doc_url': "https://github.com/EelisOtsamo/VertexColorTools"
-}
+if "bpy" in locals():
+	import importlib
+	if "ui" in locals():
+		importlib.reload(ui)
+	if "tools" in locals():
+		importlib.reload(tools)
+	if "paint_palette_compat" in locals():
+		importlib.reload(paint_palette_compat)
+	if "preferences" in locals():
+		importlib.reload(preferences)
+	if "operators" in locals():
+		importlib.reload(operators)
+
 
 import bpy
 

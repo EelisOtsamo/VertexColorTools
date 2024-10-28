@@ -1,0 +1,23 @@
+schema_version = "1.0.0"
+
+id = "vertex_color_edit_tools"
+version = "1.1.0"
+name = "Vertex Color Tools"
+tagline = "Modify, select, and paint gradients using vertex colors"
+maintainer = "Eelis Otsamo"
+type = "add-on"
+website = "https://github.com/EelisOtsamo/VertexColorTools/"
+tags = ["Paint", "3D View", "Mesh"]
+blender_version_min = "4.2.0"
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+copyright = [
+  "2023-2024 Eelis Otsamo",
+  "2019-2022 Blender Authors",
+  "2001-2002 NaN Holding BV. All rights reserved.",
+  "2011 Dany Lebel (Axon_D)",
+]
+
+[permissions]
+clipboard = "Copy the color of selected geometry to the clipboard"
