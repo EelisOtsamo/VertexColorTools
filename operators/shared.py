@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from ..internal.color_utils import HSV_INPT_MODES, RGB_INTP_MODES
 

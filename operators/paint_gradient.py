@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
 from bpy.types import Context, Mesh, Event, Operator, UILayout, SpaceView3D
@@ -71,7 +71,7 @@ SNAP_MODE_ITEMS = [
 ]
 
 class EDITVERTCOL_OT_PaintGradient(Operator):
-	bl_idname = "edit_vertex_colors.paint_gradient"
+	bl_idname = "vertex_color_edit_tools.paint_gradient"
 	bl_label = "Paint Vertex Color Gradient"
 	bl_description = "Paint a gradient into the current vertex color attribute"
 	bl_options = {'REGISTER', 'UNDO', 'BLOCKING'}

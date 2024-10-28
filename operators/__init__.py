@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from . import color_attribute, edit, paint_gradient, paint_topology_gradient, sidepanel
 

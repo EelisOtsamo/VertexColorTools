@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
 from bpy.types import Context, Mesh, Event, Operator, UILayout
@@ -40,7 +40,7 @@ TOPO_EXTENT_CLAMP_MODE_ITEMS = [
 ]
 
 class EDITVERTCOL_OT_PaintGradientTopology(Operator):
-	bl_idname = "edit_vertex_colors.paint_gradient_topology"
+	bl_idname = "vertex_color_edit_tools.paint_gradient_topology"
 	bl_label = "Paint Vertex Color Topology Gradient"
 	bl_description = "Paint a gradient into the current vertex color attribute following the selection topology"
 	bl_options = {'REGISTER', 'UNDO', 'GRAB_CURSOR', 'BLOCKING'}

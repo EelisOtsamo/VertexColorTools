@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
 from bpy.types import Context, Event, Mesh, Object, Operator
@@ -30,7 +30,7 @@ from .shared import poll_active_color_attribute
 
 
 class EDITVERTCOL_OT_Apply(Operator):
-	bl_idname = "edit_vertex_colors.apply"
+	bl_idname = "vertex_color_edit_tools.apply"
 	bl_label = "Paint Vertex Colors"
 	bl_description = "Set selected vertex colors"
 	bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
@@ -43,7 +43,7 @@ class EDITVERTCOL_OT_Apply(Operator):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
 		
 		try:
-			bpy.ops.edit_vertex_colors.paint_color(
+			bpy.ops.vertex_color_edit_tools.paint_color(
 			blend_mode	= props.blend_mode,
 			brush_color	= props.brush_color,
 			factor		= props.factor,
@@ -57,7 +57,7 @@ class EDITVERTCOL_OT_Apply(Operator):
 
 
 class EDITVERTCOL_OT_CopyActiveCorner(Operator):
-	bl_idname = "edit_vertex_colors.copy_active_corner"
+	bl_idname = "vertex_color_edit_tools.copy_active_corner"
 	bl_label = "Copy Active Face Corner Vertex Color"
 	bl_description = "Copy the vertex color from the active corner of the selected face. (Shift + Click to only copy to the clipboard)"
 	bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
@@ -118,7 +118,7 @@ class EDITVERTCOL_OT_CopyActiveCorner(Operator):
 
 
 class EDITVERTCOL_OT_CopySelected(Operator):
-	bl_idname = "edit_vertex_colors.copy_selected"
+	bl_idname = "vertex_color_edit_tools.copy_selected"
 	bl_label = "Copy Selected Vertex Color"
 	bl_description = "Copy vertex color from current selection.  (Shift + Click to only copy to the clipboard)"
 	bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
@@ -168,7 +168,7 @@ class EDITVERTCOL_OT_CopySelected(Operator):
 
 
 class EDITVERTCOL_OT_PaletteColorReset(Operator):
-	bl_idname = "edit_vertex_colors.palette_color_reset"
+	bl_idname = "vertex_color_edit_tools.palette_color_reset"
 	bl_label = "Load Default Palette"
 	bl_description = "Replaces the palette colors with the default palette"
 	bl_options = {'REGISTER', 'INTERNAL'}
@@ -182,7 +182,7 @@ class EDITVERTCOL_OT_PaletteColorReset(Operator):
 	
 
 class EDITVERTCOL_OT_PaletteColorAdd(Operator):
-	bl_idname = "edit_vertex_colors.palette_color_add"
+	bl_idname = "vertex_color_edit_tools.palette_color_add"
 	bl_label = "Add Palette Color"
 	bl_description = "Add the current color to the palette"
 	bl_options = {'REGISTER', 'INTERNAL'}
@@ -197,7 +197,7 @@ class EDITVERTCOL_OT_PaletteColorAdd(Operator):
 		return {'FINISHED'}
 	
 class EDITVERTCOL_OT_PaletteColorRemove(Operator):
-	bl_idname = "edit_vertex_colors.palette_color_remove"
+	bl_idname = "vertex_color_edit_tools.palette_color_remove"
 	bl_label = "Remove Palette Color"
 	bl_description = "Remove the latest color from the palette"
 	bl_options = {'REGISTER', 'INTERNAL'}
@@ -221,7 +221,7 @@ class EDITVERTCOL_OT_PaletteColorRemove(Operator):
 
 
 class EDITVERTCOL_OT_PaletteColorSelect(Operator):
-	bl_idname = "edit_vertex_colors.palette_select_color"
+	bl_idname = "vertex_color_edit_tools.palette_select_color"
 	bl_label = "Select Palette Color"
 	bl_description = "Select color (SHIFT to quick apply, CTRL to select and apply)"
 	bl_options = {'UNDO', 'INTERNAL', 'REGISTER'}
@@ -265,7 +265,7 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 			color = palette[self.color_index].color
 
 		try:
-			bpy.ops.edit_vertex_colors.paint_color(
+			bpy.ops.vertex_color_edit_tools.paint_color(
 				blend_mode	= props.blend_mode,
 				brush_color	= color,
 				factor		= props.factor,

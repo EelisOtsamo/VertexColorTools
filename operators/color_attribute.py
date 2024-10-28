@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
 from bpy.types import Operator, Context
@@ -17,7 +17,7 @@ from ..internal.color_attribute import bright_contrast_color_attribute
 
 
 class EDITVERTCOL_OT_Convert(Operator):
-	bl_idname = "edit_vertex_colors.convert"
+	bl_idname = "vertex_color_edit_tools.convert"
 	bl_label = "Convert Color Attribute"
 	bl_description = "Change the format of the active color attribute. Vertex color information may be lost"
 	bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
@@ -45,7 +45,7 @@ class EDITVERTCOL_OT_Convert(Operator):
 
 
 class EDITVERTCOL_OT_Duplicate(Operator):
-	bl_idname = "edit_vertex_colors.duplicate"
+	bl_idname = "vertex_color_edit_tools.duplicate"
 	bl_label = "Duplicate Color Attribute"
 	bl_description = "Duplicate the active color attribute"
 	bl_options = {'REGISTER', 'UNDO', 'INTERNAL'}
@@ -64,7 +64,7 @@ class EDITVERTCOL_OT_Duplicate(Operator):
 	
 
 class EDITVERTCOL_OT_BrightContrast(Operator):
-	bl_idname = "edit_vertex_colors.bright_contrast"
+	bl_idname = "vertex_color_edit_tools.bright_contrast"
 	bl_label = "Brightness/Contrast"
 	bl_description = "Adjust vertex color brightness / contrast"
 	bl_options = {'REGISTER', 'UNDO'}

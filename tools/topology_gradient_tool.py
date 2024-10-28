@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from pathlib import Path
 import bpy.types
@@ -8,11 +8,11 @@ from ..operators.paint_topology_gradient import EDITVERTCOL_OT_PaintGradientTopo
 
 
 class TopologyGradientTool(WorkSpaceTool):
-	bl_idname = 'edit_vertex_colors.gradient_topology_tool'
+	bl_idname = 'vertex_color_edit_tools.gradient_topology_tool'
 	bl_space_type = 'VIEW_3D'
 	bl_context_mode = 'EDIT_MESH'
 	bl_label = 'Vertex Color Topology Gradient'
-	bl_icon = (Path(__file__).parent.parent / "ui" / 'icons' / "edit_vertex_colors.paint_gradient_topology").as_posix()
+	bl_icon = (Path(__file__).parent.parent / "ui" / 'icons' / "vertex_color_edit_tools.paint_gradient_topology").as_posix()
 	bl_keymap = (
 			(
 				EDITVERTCOL_OT_PaintGradientTopology.bl_idname, 

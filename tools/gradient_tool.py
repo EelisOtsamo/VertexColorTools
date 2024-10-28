@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from pathlib import Path
 import bpy.types
@@ -8,11 +8,11 @@ from ..operators.paint_gradient import EDITVERTCOL_OT_PaintGradient
 
 
 class GradientTool(WorkSpaceTool):
-	bl_idname = 'edit_vertex_colors.gradient_tool'
+	bl_idname = 'vertex_color_edit_tools.gradient_tool'
 	bl_space_type = 'VIEW_3D'
 	bl_context_mode = 'EDIT_MESH'
 	bl_label = 'Vertex Color Gradient'
-	bl_icon = (Path(__file__).parent.parent / "ui" / 'icons' / "edit_vertex_colors.paint_gradient").as_posix()
+	bl_icon = (Path(__file__).parent.parent / "ui" / 'icons' / "vertex_color_edit_tools.paint_gradient").as_posix()
 	bl_keymap = (
 			(
 				EDITVERTCOL_OT_PaintGradient.bl_idname, 

@@ -1,15 +1,15 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This file contains Python ports of color blending and conversion functions sourced from Blender.
 # Original code from:
 # - blender/source/blender/gpu/shaders/common/gpu_shader_common_mix_rgb.glsl
+#   - SPDX-FileCopyrightText: 2019-2022 Blender Authors
 # - blender/source/blender/gpu/shaders/common/gpu_shader_common_color_utils.glsl
-# - blender/source/blender/blenlib/intern/math_color.c
+#   - SPDX-FileCopyrightText: 2019-2022 Blender Authors
+# - blender/source/blender/blenlib/intern/math_color.cc
+#   - SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.
 # - blender/source/blender/blenkernel/intern/colorband.cc
-#
-# SPDX-FileCopyrightText: 2019-2022 Blender Authors
-# SPDX-License-Identifier: GPL-2.0-or-later
-# 
+#   - SPDX-FileCopyrightText: 2001-2002 NaN Holding BV. All rights reserved.
 # 
 # Oklab color space by Björn Ottosson:
 # - https://bottosson.github.io/posts/oklab/
@@ -252,14 +252,14 @@ def maxv(*vecs):
 	return Vector(tuple(max_components))
 
 def srgb_to_linear(c):
-	'''Ported from source/blender/blenlib/intern/math_color.c'''
+	'''Ported from source/blender/blenlib/intern/math_color.cc'''
 	if c < 0.4045:
 		return 0 if (c < 0) else c * (1.0 / 12.92)
 	return pow((c+0.055)*(1.0/1.055), 2.4)
 
 
 def linear_to_srgb(c):
-	'''Ported from source/blender/blenlib/intern/math_color.c'''
+	'''Ported from source/blender/blenlib/intern/math_color.cc'''
 	if c < 0.0031308:
 		return 0 if (c < 0) else c * 12.92
 	return 1.055 * pow(c, 1.0 / 2.4) - 0.055

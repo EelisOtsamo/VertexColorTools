@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
 from bpy.types import Context, SpaceView3D, Mesh, Object, Operator
@@ -24,7 +24,7 @@ from .shared import poll_active_color_attribute
 		
 
 class EDITVERTCOL_OT_PaintColor(Operator):
-	bl_idname = "edit_vertex_colors.paint_color"
+	bl_idname = "vertex_color_edit_tools.paint_color"
 	bl_label = "Paint Vertex Colors"
 	bl_description = "Set selected vertex colors"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -92,7 +92,7 @@ class EDITVERTCOL_OT_PaintColor(Operator):
 
 
 class EDITVERTCOL_OT_SelectLinkedVertexColor(Operator):
-	bl_idname = "edit_vertex_colors.select_linked_color"
+	bl_idname = "vertex_color_edit_tools.select_linked_color"
 	bl_label = "Select Linked Vertex Color"
 	bl_description = "Select elements connected to the active element with similar vertex color"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -145,7 +145,7 @@ class EDITVERTCOL_OT_SelectLinkedVertexColor(Operator):
 
 
 class EDITVERTCOL_OT_SelectSimilarVertexColor(Operator):
-	bl_idname = "edit_vertex_colors.select_similar_color"
+	bl_idname = "vertex_color_edit_tools.select_similar_color"
 	bl_label = "Select Similar Vertex Color"
 	bl_description = "Select similar vertices or faces by the vertex colors of the current selection"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -181,7 +181,7 @@ class EDITVERTCOL_OT_SelectSimilarVertexColor(Operator):
 
 
 class EDITVERTCOL_OT_Clip(Operator):
-	bl_idname = "edit_vertex_colors.clip_all"
+	bl_idname = "vertex_color_edit_tools.clip_all"
 	bl_label = "Clip All Vertex Colors"
 	bl_description = "Clip the color components of the current color attribute between 0 and 1"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -199,7 +199,7 @@ class EDITVERTCOL_OT_Clip(Operator):
 
 
 class EDITVERTCOL_OT_CopyColorToSelected(Operator):
-	bl_idname = "edit_vertex_colors.copy_active_color_to_selected"
+	bl_idname = "vertex_color_edit_tools.copy_active_color_to_selected"
 	bl_label = "Copy Color Attribute to Selected from Active"
 	bl_description = "Transfer color attribute from active face to selected"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -222,7 +222,7 @@ class EDITVERTCOL_OT_CopyColorToSelected(Operator):
 
 
 class EDITVERTCOL_OT_Preview(Operator):
-	bl_idname = "edit_vertex_colors.preview"
+	bl_idname = "vertex_color_edit_tools.preview"
 	bl_label = "Viewport Preview"
 	bl_description = "Set viewport mode to preview vertex colors"
 
