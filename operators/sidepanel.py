@@ -12,11 +12,12 @@ from bpy.props import (
 )
 import mathutils
 
-from ..internal.color_utils import srgb_to_linear
+from ..internal.color_utils import BLEND_MODES, srgb_to_linear
 
 from ..internal.color_attribute import (
 	get_selection_color,
-	get_active_corner_color)
+	get_active_corner_color,
+	set_selection_color)
 
 from ..internal.types import ContextException
 
@@ -42,19 +43,22 @@ class VCOLTOOLS_OT_Apply(Operator):
 		return poll_active_color_attribute(cls, context)
 
 	def execute(self, context: Context):
+		mesh: Mesh = context.active_object.data # type: ignore
 		props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
-		
+		blend_func = BLEND_MODES[props.blend_mode][0]
 		try:
-			bpy.ops.vertex_color_edit_tools.paint_color(
-			blend_mode	= props.blend_mode,
-			brush_color	= props.brush_color,
-			factor		= props.factor,
-			clip_colors	= props.clip_colors,
-			active_only	= props.active_only
-		)
-		except Exception as e:
+			set_selection_color(
+				mesh,
+				props.active_only,
+				blend_func,
+				props.factor,
+				props.brush_color,
+				props.clip_colors)
+
+		except ContextException as e:
 			self.report({'ERROR_INVALID_INPUT'}, e.args[0])
-			
+			return {'CANCELLED'}
+
 		return {'FINISHED'}
 
 
