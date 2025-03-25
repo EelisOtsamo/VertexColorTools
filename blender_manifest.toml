@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "vertex_color_edit_tools"
-version = "1.1.0"
+version = "1.2.0"
 name = "Vertex Color Tools"
 tagline = "Modify, select, and paint gradients using vertex colors"
 maintainer = "Eelis Otsamo"
