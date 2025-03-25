@@ -205,7 +205,8 @@ class VCOLTOOLS_OT_PaintGradient(Operator):
 		"X", "Y", "Z", "Local X", "Local Y","Local Z"
 	]
 
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		self._snap = False
 		self._axis_dir = Vector()
 		self._axis = AxisMode.NONE

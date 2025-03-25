@@ -143,7 +143,8 @@ class VCOLTOOLS_OT_PaintGradientTopology(Operator):
 	
 	
 	
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		self._snap = False
 		self._distance = 0.0
 		self._start_coord = None
