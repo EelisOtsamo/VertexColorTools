@@ -16,7 +16,7 @@ from bpy.props import (
 	BoolProperty,
 	PointerProperty)
 
-from .internal.color_utils import BLEND_MODE_ITEMS
+from .internal.color_utils import BLEND_MODE_ITEMS, srgb_to_linear
 from bpy.app.handlers import persistent
 
 class EDITVERTCOL_AddonPreferences(AddonPreferences):
@@ -109,8 +109,9 @@ class EDITVERTCOL_PaletteColor(PropertyGroup):
 def load_palette_defaults(palette):
 	palette.clear()
 	for i in range(8):
+		gray_value = srgb_to_linear(float(i) / 7)
 		item: EDITVERTCOL_PaletteColor = palette.add()
-		item.color = (float(i) / 7, float(i) / 7,float(i) / 7,1)
+		item.color = (gray_value, gray_value, gray_value, 1)
 
 
 @persistent
