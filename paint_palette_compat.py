@@ -12,43 +12,47 @@ from .internal.color_utils import (
 	linear_to_srgb
 )
 
-from .preferences import (EDITVERTCOL_PropertyGroup, addon_preferences, palette_addon)
+from .preferences import (EDITVERTCOL_PropertyGroup, addon_preferences,)
 
+_PAINT_PALETTES_MOD_NAME = 'bl_ext.blender_org.paint_palettes'
+_UNPATCHED_CURRENT_BRUSH = None
 
-def check_paint_pallette_addon():
-	loaded_modules: list = addon_utils.modules()
-	for mod in loaded_modules:
-		if (mod.bl_info.get('name') == 'Paint Palettes') and (mod.bl_info.get('author') == "Dany Lebel (Axon D)"):
-			initialize_paint_palette_compat(sys.modules['paint_palette'])
-			return
+def get_paint_palettes_module():
+	_, loaded_state = addon_utils.check(_PAINT_PALETTES_MOD_NAME)
+	if not loaded_state:
+		return None
+	return sys.modules.get(_PAINT_PALETTES_MOD_NAME)
+
 	
-
-def initialize_paint_palette_compat(mod):
+def _disable_paint_palette_compat():
+	global _UNPATCHED_CURRENT_BRUSH
 	prefs = addon_preferences()
+	mod = get_paint_palettes_module()
+	if prefs.paint_palettes_enabled and mod:
+		# Remove the monkeypatch
+		mod.current_brush = _UNPATCHED_CURRENT_BRUSH
 
-	prefs.palette_addon_enabled = True
-	
-	monkeypatch_palette_compat(mod)
-
-
-def disable_paint_palette_compat():
-	prefs = addon_preferences()
-
-	loaded_default, loaded_state = addon_utils.check("paint_palettes")
-	if prefs.palette_addon_enabled and loaded_state:
-		# Reimport the palette addon
-		importlib.reload(palette_addon())
-	
-	prefs.palette_addon_enabled = False
+	_UNPATCHED_CURRENT_BRUSH = None
+	prefs.paint_palettes_enabled = False
 
 
+def _enable_paint_palette_compat():
+	def _check_paint_pallettes_addon():
+		prefs = addon_preferences()
+		mod = get_paint_palettes_module()
+		if mod:
+			prefs.paint_palettes_enabled = True
+			_monkeypatch_palette_compat(mod)
+			
+	bpy.app.timers.register(_check_paint_pallettes_addon, first_interval=0)
 
-def enable_paint_palette_compat():
-	bpy.app.timers.register(check_paint_pallette_addon, first_interval=0)
 
-
-def monkeypatch_palette_compat(mod):
-	# Patch functions of the paint_palette addon module
+def _monkeypatch_palette_compat(mod):
+	'''
+	Patch functions of the paint_palettes addon module
+	'''
+	global _UNPATCHED_CURRENT_BRUSH
+	_UNPATCHED_CURRENT_BRUSH = mod.current_brush
 
 	class BrushProxy:
 		# This class allows the paint palette addon to modify our color properties,
@@ -64,10 +68,8 @@ def monkeypatch_palette_compat(mod):
 			props: EDITVERTCOL_PropertyGroup = bpy.context.scene.EditVertexColorsProperties
 			props.brush_color[:3] = [srgb_to_linear(c) for c in value[:3]]
 
-
-	current_brush_SUPER = mod.current_brush
-	def current_brush():
-		brush = current_brush_SUPER()
+	def patched_current_brush():
+		brush = _UNPATCHED_CURRENT_BRUSH()
 
 		if brush:
 			return brush
@@ -79,14 +81,14 @@ def monkeypatch_palette_compat(mod):
 			brush = None
 		return brush
 
-	mod.current_brush = current_brush
+	mod.current_brush = patched_current_brush
 
 
 def _on_palette_addon_compat_changed(is_enabled: bool):
 	if is_enabled:
-		enable_paint_palette_compat()
+		_enable_paint_palette_compat()
 	else:
-		disable_paint_palette_compat()
+		_disable_paint_palette_compat()
 
 
 def register():
@@ -96,8 +98,8 @@ def register():
 	prefs.register_callback('paint_palette_addon_compatibility', _on_palette_addon_compat_changed)
 	
 	if prefs.paint_palette_addon_compatibility:
-		enable_paint_palette_compat()
+		_enable_paint_palette_compat()
 
 
 def unregister():
-	disable_paint_palette_compat()
+	_disable_paint_palette_compat()

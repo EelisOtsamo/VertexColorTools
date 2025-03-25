@@ -24,8 +24,9 @@ from ..preferences import (
 	EDITVERTCOL_PropertyGroup,
 	load_palette_defaults,
 	addon_preferences,
-	palette_addon
 )
+
+from ..paint_palette_compat import get_paint_palettes_module
 
 from .shared import poll_active_color_attribute
 
@@ -238,10 +239,10 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 		elif event.ctrl:
 			self.execute(context)
 		
-		if addon_preferences().palette_addon_enabled and palette_addon():
+		if addon_preferences().paint_palettes_enabled and get_paint_palettes_module():
 			palette_props = context.scene.palette_props 
 			palette_props.current_color_index = self.color_index
-			palette_addon().update_panels() # pyright: ignore[reportOptionalMemberAccess]
+			get_paint_palettes_module().update_panels() # pyright: ignore[reportOptionalMemberAccess]
 
 		else:
 			palette = context.scene.EditVertexColorsPalette
@@ -253,7 +254,7 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 	def execute(self, context: Context):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
 
-		if addon_preferences().palette_addon_enabled and palette_addon():
+		if addon_preferences().paint_palettes_enabled and get_paint_palettes_module():
 			palette_props = context.scene.palette_props
 			palette_color = palette_props.colors[self.color_index].color
 

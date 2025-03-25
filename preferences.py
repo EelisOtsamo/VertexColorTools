@@ -2,9 +2,6 @@
 
 # type: ignore
 
-import sys
-import addon_utils
-
 from bpy.types import (
 	PropertyGroup,
 	Scene,
@@ -39,7 +36,7 @@ class EDITVERTCOL_AddonPreferences(AddonPreferences):
 			callback(self.get(attribute_name))
 
 
-	palette_addon_enabled: bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
+	paint_palettes_enabled: bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
 
 	paint_palette_addon_compatibility: bpy.props.BoolProperty(
 		name="Paint Palette Intergration",
@@ -127,11 +124,6 @@ def _post_load_handler(_) -> None:
 def addon_preferences() -> EDITVERTCOL_AddonPreferences:
 	return bpy.context.preferences.addons[__package__].preferences
 
-def palette_addon():
-	loaded_default, loaded_state = addon_utils.check('paint_palette')
-	if not loaded_state:
-		return None
-	return sys.modules.get('paint_palette')
 
 
 classes = (

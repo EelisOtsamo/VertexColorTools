@@ -13,8 +13,9 @@ from bpy.utils import unregister_class, register_class
 from ..preferences import (
 	EDITVERTCOL_PropertyGroup,
 	addon_preferences,
-	palette_addon
 )
+
+from ..paint_palette_compat import get_paint_palettes_module
 
 from ..operators.edit import (
 	EDITVERTCOL_OT_Preview,
@@ -240,9 +241,10 @@ class EDITVERTCOL_PT_PalettePanel(Panel):
 
 	def draw(self, context: Context):
 		prefs = addon_preferences()
-		if prefs.palette_addon_enabled and palette_addon():
-			# Use the palette addon's palette
-			self.draw_palette_addon(context)
+
+		if prefs.paint_palettes_enabled and get_paint_palettes_module():
+			# Use the paint_palettes palette
+			self.draw_paint_palettes(context)
 		else:
 			# Simple palette ui
 			layout = self.layout
@@ -264,13 +266,15 @@ class EDITVERTCOL_PT_PalettePanel(Panel):
 				color_container.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text="", icon='LAYER_ACTIVE').color_index = i
 
 
-	def draw_palette_addon(self, context: Context):
-		mod = palette_addon()
+	def draw_paint_palettes(self, context: Context):
+		"""
+		Draws the Paint Palettes addon's palette UI.
+		Modified from blender/4.0/scripts/addons/paint_palette.py
+		SPDX-FileCopyrightText: 2011 Dany Lebel (Axon_D)
+		SPDX-License-Identifier: GPL-2.0-or-later
+		"""
 
-		# Modified from blender/4.0/scripts/addons/paint_palette.py
-		# SPDX-FileCopyrightText: 2011 Dany Lebel (Axon_D)
-		#
-		# SPDX-License-Identifier: GPL-2.0-or-later
+		mod = get_paint_palettes_module()
 
 		palette_props = context.scene.palette_props
 
