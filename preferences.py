@@ -19,7 +19,7 @@ from bpy.props import (
 from .internal.color_utils import BLEND_MODE_ITEMS, srgb_to_linear
 from bpy.app.handlers import persistent
 
-class EDITVERTCOL_AddonPreferences(AddonPreferences):
+class VCOLTOOLS_AddonPreferences(AddonPreferences):
 	bl_idname = __package__
 	
 	_property_callbacks: dict = {}
@@ -54,7 +54,7 @@ class EDITVERTCOL_AddonPreferences(AddonPreferences):
 
 
 
-class EDITVERTCOL_PropertyGroup(PropertyGroup):
+class VCOLTOOLS_PropertyGroup(PropertyGroup):
 	'''
 	Contains configuration used for painting vertex colors from the Edit panel
 	'''
@@ -96,7 +96,7 @@ class EDITVERTCOL_PropertyGroup(PropertyGroup):
 		description='Paint only the active face corner of the selected face. Allows painting single vertices even when the color attribute is split between faces')
 
 
-class EDITVERTCOL_PaletteColor(PropertyGroup):
+class VCOLTOOLS_PaletteColor(PropertyGroup):
 	color: FloatVectorProperty(
 		name="Color 1",
 		subtype='COLOR',
@@ -110,7 +110,7 @@ def load_palette_defaults(palette):
 	palette.clear()
 	for i in range(8):
 		gray_value = srgb_to_linear(float(i) / 7)
-		item: EDITVERTCOL_PaletteColor = palette.add()
+		item: VCOLTOOLS_PaletteColor = palette.add()
 		item.color = (gray_value, gray_value, gray_value, 1)
 
 
@@ -122,24 +122,24 @@ def _post_load_handler(_) -> None:
 	load_palette_defaults(palette)
 
 
-def addon_preferences() -> EDITVERTCOL_AddonPreferences:
+def addon_preferences() -> VCOLTOOLS_AddonPreferences:
 	return bpy.context.preferences.addons[__package__].preferences
 
 
 
 classes = (
-	EDITVERTCOL_AddonPreferences,
-	EDITVERTCOL_PaletteColor,
-	EDITVERTCOL_PropertyGroup
+	VCOLTOOLS_AddonPreferences,
+	VCOLTOOLS_PaletteColor,
+	VCOLTOOLS_PropertyGroup
 )
 
 def register():
 	for cls in classes:
 		bpy.utils.register_class(cls)
 	Scene.EditVertexColorsProperties = PointerProperty(
-		type=EDITVERTCOL_PropertyGroup)
+		type=VCOLTOOLS_PropertyGroup)
 	Scene.EditVertexColorsPalette = CollectionProperty(
-		type=EDITVERTCOL_PaletteColor)
+		type=VCOLTOOLS_PaletteColor)
 	bpy.app.handlers.load_post.append(_post_load_handler)
 
 

@@ -40,7 +40,7 @@ TOPO_EXTENT_CLAMP_MODE_ITEMS = [
 	(TopologyExtentClampMode.INDIVIDUAL.value, "Individual", "Clamp each face sequence individually"), 
 ]
 
-class EDITVERTCOL_OT_PaintGradientTopology(Operator):
+class VCOLTOOLS_OT_PaintGradientTopology(Operator):
 	bl_idname = "vertex_color_edit_tools.paint_gradient_topology"
 	bl_label = "Paint Vertex Color Topology Gradient"
 	bl_description = "Paint a gradient into the current vertex color attribute following the selection topology"
@@ -314,7 +314,7 @@ class EDITVERTCOL_OT_PaintGradientTopology(Operator):
 
 
 classes = (
-	EDITVERTCOL_OT_PaintGradientTopology,
+	VCOLTOOLS_OT_PaintGradientTopology,
 )
 
 def register():

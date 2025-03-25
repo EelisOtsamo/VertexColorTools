@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy.types
 from bpy.types import Context, WorkSpaceTool, UILayout
 
-from ..operators.paint_topology_gradient import EDITVERTCOL_OT_PaintGradientTopology
+from ..operators.paint_topology_gradient import VCOLTOOLS_OT_PaintGradientTopology
 
 
 class TopologyGradientTool(WorkSpaceTool):
@@ -15,7 +15,7 @@ class TopologyGradientTool(WorkSpaceTool):
 	bl_icon = (Path(__file__).parent.parent / "ui" / 'icons' / "vertex_color_edit_tools.paint_gradient_topology").as_posix()
 	bl_keymap = (
 			(
-				EDITVERTCOL_OT_PaintGradientTopology.bl_idname, 
+				VCOLTOOLS_OT_PaintGradientTopology.bl_idname, 
 				{"type": 'RIGHTMOUSE', "value": 'PRESS'},
 				{"properties": []},
 			),
@@ -23,12 +23,12 @@ class TopologyGradientTool(WorkSpaceTool):
 
 
 	def draw_settings(context: Context, layout: UILayout, tool: WorkSpaceTool, extra = False): # pyright: ignore[reportSelfClsParameterName, reportGeneralTypeIssues]
-		props = tool.operator_properties(EDITVERTCOL_OT_PaintGradientTopology.bl_idname)
+		props = tool.operator_properties(VCOLTOOLS_OT_PaintGradientTopology.bl_idname)
 
 		region_is_header = bpy.context.region.type == 'TOOL_HEADER'
 
 		if not region_is_header:
-			EDITVERTCOL_OT_PaintGradientTopology.static_draw(props, layout)
+			VCOLTOOLS_OT_PaintGradientTopology.static_draw(props, layout)
 			return
 
 		if not extra:

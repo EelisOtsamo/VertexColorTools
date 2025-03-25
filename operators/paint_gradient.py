@@ -71,7 +71,7 @@ SNAP_MODE_ITEMS = [
 	('CURSOR', "Cursor", "Use 3D cursor")
 ]
 
-class EDITVERTCOL_OT_PaintGradient(Operator):
+class VCOLTOOLS_OT_PaintGradient(Operator):
 	bl_idname = "vertex_color_edit_tools.paint_gradient"
 	bl_label = "Paint Vertex Color Gradient"
 	bl_description = "Paint a gradient into the current vertex color attribute"
@@ -604,7 +604,7 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 
 
 classes = (
-	EDITVERTCOL_OT_PaintGradient,
+	VCOLTOOLS_OT_PaintGradient,
 )
 
 def register():

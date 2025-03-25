@@ -15,7 +15,7 @@ from .shared import poll_active_color_attribute
 from ..internal.color_attribute import bright_contrast_color_attribute
 
 
-class EDITVERTCOL_OT_Convert(Operator):
+class VCOLTOOLS_OT_Convert(Operator):
 	bl_idname = "vertex_color_edit_tools.convert"
 	bl_label = "Convert Color Attribute"
 	bl_description = "Change the format of the active color attribute. Vertex color information may be lost"
@@ -43,7 +43,7 @@ class EDITVERTCOL_OT_Convert(Operator):
 
 
 
-class EDITVERTCOL_OT_Duplicate(Operator):
+class VCOLTOOLS_OT_Duplicate(Operator):
 	bl_idname = "vertex_color_edit_tools.duplicate"
 	bl_label = "Duplicate Color Attribute"
 	bl_description = "Duplicate the active color attribute"
@@ -62,7 +62,7 @@ class EDITVERTCOL_OT_Duplicate(Operator):
 
 	
 
-class EDITVERTCOL_OT_BrightContrast(Operator):
+class VCOLTOOLS_OT_BrightContrast(Operator):
 	bl_idname = "vertex_color_edit_tools.bright_contrast"
 	bl_label = "Brightness/Contrast"
 	bl_description = "Adjust vertex color brightness / contrast"
@@ -111,9 +111,9 @@ class EDITVERTCOL_OT_BrightContrast(Operator):
 
 
 classes = (
-	EDITVERTCOL_OT_Convert,
-	EDITVERTCOL_OT_Duplicate,
-	EDITVERTCOL_OT_BrightContrast
+	VCOLTOOLS_OT_Convert,
+	VCOLTOOLS_OT_Duplicate,
+	VCOLTOOLS_OT_BrightContrast
 )
 
 

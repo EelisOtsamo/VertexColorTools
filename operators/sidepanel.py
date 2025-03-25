@@ -21,7 +21,7 @@ from ..internal.color_attribute import (
 from ..internal.types import ContextException
 
 from ..preferences import (
-	EDITVERTCOL_PropertyGroup,
+	VCOLTOOLS_PropertyGroup,
 	load_palette_defaults,
 	addon_preferences,
 )
@@ -31,7 +31,7 @@ from ..paint_palette_compat import get_paint_palettes_module
 from .shared import poll_active_color_attribute
 
 
-class EDITVERTCOL_OT_Apply(Operator):
+class VCOLTOOLS_OT_Apply(Operator):
 	bl_idname = "vertex_color_edit_tools.apply"
 	bl_label = "Paint Vertex Colors"
 	bl_description = "Set selected vertex colors"
@@ -42,7 +42,7 @@ class EDITVERTCOL_OT_Apply(Operator):
 		return poll_active_color_attribute(cls, context)
 
 	def execute(self, context: Context):
-		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
+		props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
 		
 		try:
 			bpy.ops.vertex_color_edit_tools.paint_color(
@@ -58,7 +58,7 @@ class EDITVERTCOL_OT_Apply(Operator):
 		return {'FINISHED'}
 
 
-class EDITVERTCOL_OT_CopyActiveCorner(Operator):
+class VCOLTOOLS_OT_CopyActiveCorner(Operator):
 	bl_idname = "vertex_color_edit_tools.copy_active_corner"
 	bl_label = "Copy Active Face Corner Vertex Color"
 	bl_description = "Copy the vertex color from the active corner of the selected face. (Shift + Click to only copy to the clipboard)"
@@ -80,7 +80,7 @@ class EDITVERTCOL_OT_CopyActiveCorner(Operator):
 		return {'FINISHED'}
 
 	def execute(self, context: Context):
-		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
+		props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
 		mesh: Mesh = context.active_object.data # type: ignore
 
 		color_attribute: Attribute = mesh.color_attributes.active_color # pyright: ignore[reportAssignmentType]
@@ -118,7 +118,7 @@ class EDITVERTCOL_OT_CopyActiveCorner(Operator):
 
 
 
-class EDITVERTCOL_OT_CopySelected(Operator):
+class VCOLTOOLS_OT_CopySelected(Operator):
 	bl_idname = "vertex_color_edit_tools.copy_selected"
 	bl_label = "Copy Selected Vertex Color"
 	bl_description = "Copy vertex color from current selection.  (Shift + Click to only copy to the clipboard)"
@@ -140,7 +140,7 @@ class EDITVERTCOL_OT_CopySelected(Operator):
 		return {'FINISHED'}
 
 	def execute(self, context: Context):
-		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
+		props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
 		mesh: Mesh = context.active_object.data # type: ignore
 
 		color_attribute: Attribute = mesh.color_attributes.active_color # pyright: ignore[reportAssignmentType]
@@ -168,7 +168,7 @@ class EDITVERTCOL_OT_CopySelected(Operator):
 
 
 
-class EDITVERTCOL_OT_PaletteColorReset(Operator):
+class VCOLTOOLS_OT_PaletteColorReset(Operator):
 	bl_idname = "vertex_color_edit_tools.palette_color_reset"
 	bl_label = "Load Default Palette"
 	bl_description = "Replaces the palette colors with the default palette"
@@ -182,7 +182,7 @@ class EDITVERTCOL_OT_PaletteColorReset(Operator):
 		return {'FINISHED'}
 	
 
-class EDITVERTCOL_OT_PaletteColorAdd(Operator):
+class VCOLTOOLS_OT_PaletteColorAdd(Operator):
 	bl_idname = "vertex_color_edit_tools.palette_color_add"
 	bl_label = "Add Palette Color"
 	bl_description = "Add the current color to the palette"
@@ -190,14 +190,14 @@ class EDITVERTCOL_OT_PaletteColorAdd(Operator):
 
 
 	def execute(self, context: Context):
-		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
+		props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
 		palette = context.scene.EditVertexColorsPalette
 		item = palette.add()
 		item.color = props.brush_color
 
 		return {'FINISHED'}
 	
-class EDITVERTCOL_OT_PaletteColorRemove(Operator):
+class VCOLTOOLS_OT_PaletteColorRemove(Operator):
 	bl_idname = "vertex_color_edit_tools.palette_color_remove"
 	bl_label = "Remove Palette Color"
 	bl_description = "Remove the latest color from the palette"
@@ -205,7 +205,7 @@ class EDITVERTCOL_OT_PaletteColorRemove(Operator):
 
 
 	def execute(self, context: Context):
-		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
+		props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
 		
 		palette = context.scene.EditVertexColorsPalette
 		num_colors = len(palette)
@@ -221,7 +221,7 @@ class EDITVERTCOL_OT_PaletteColorRemove(Operator):
 		return {'FINISHED'}
 
 
-class EDITVERTCOL_OT_PaletteColorSelect(Operator):
+class VCOLTOOLS_OT_PaletteColorSelect(Operator):
 	bl_idname = "vertex_color_edit_tools.palette_select_color"
 	bl_label = "Select Palette Color"
 	bl_description = "Select color (SHIFT to quick apply, CTRL to select and apply)"
@@ -246,13 +246,13 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 
 		else:
 			palette = context.scene.EditVertexColorsPalette
-			props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
+			props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
 			props.brush_color = palette[self.color_index].color
 		return {'FINISHED'}
 
 
 	def execute(self, context: Context):
-		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
+		props: VCOLTOOLS_PropertyGroup = context.scene.EditVertexColorsProperties
 
 		if addon_preferences().paint_palettes_enabled and get_paint_palettes_module():
 			palette_props = context.scene.palette_props
@@ -289,13 +289,13 @@ def vector_clipboard_format(vec: mathutils.Vector) -> str:
 
 
 classes = (
-	EDITVERTCOL_OT_Apply,
-	EDITVERTCOL_OT_CopySelected,
-	EDITVERTCOL_OT_CopyActiveCorner,
-	EDITVERTCOL_OT_PaletteColorAdd,
-	EDITVERTCOL_OT_PaletteColorRemove,
-	EDITVERTCOL_OT_PaletteColorReset,
-	EDITVERTCOL_OT_PaletteColorSelect
+	VCOLTOOLS_OT_Apply,
+	VCOLTOOLS_OT_CopySelected,
+	VCOLTOOLS_OT_CopyActiveCorner,
+	VCOLTOOLS_OT_PaletteColorAdd,
+	VCOLTOOLS_OT_PaletteColorRemove,
+	VCOLTOOLS_OT_PaletteColorReset,
+	VCOLTOOLS_OT_PaletteColorSelect
 )
 
 def register():

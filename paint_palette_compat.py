@@ -12,7 +12,7 @@ from .internal.color_utils import (
 	linear_to_srgb
 )
 
-from .preferences import (EDITVERTCOL_PropertyGroup, addon_preferences,)
+from .preferences import (VCOLTOOLS_PropertyGroup, addon_preferences,)
 
 _PAINT_PALETTES_MOD_NAME = 'bl_ext.blender_org.paint_palettes'
 _UNPATCHED_CURRENT_BRUSH = None
@@ -60,12 +60,12 @@ def _monkeypatch_palette_compat(mod):
 		
 		@property
 		def color(self):
-			props: EDITVERTCOL_PropertyGroup = bpy.context.scene.EditVertexColorsProperties
+			props: VCOLTOOLS_PropertyGroup = bpy.context.scene.EditVertexColorsProperties
 			return [linear_to_srgb(c) for c in props.brush_color[:3]]
 		
 		@color.setter
 		def color(self, value: tuple[float,float,float]):
-			props: EDITVERTCOL_PropertyGroup = bpy.context.scene.EditVertexColorsProperties
+			props: VCOLTOOLS_PropertyGroup = bpy.context.scene.EditVertexColorsProperties
 			props.brush_color[:3] = [srgb_to_linear(c) for c in value[:3]]
 
 	def patched_current_brush():

@@ -24,7 +24,7 @@ from ..internal.color_utils import BLEND_MODES
 from .shared import poll_active_color_attribute
 		
 
-class EDITVERTCOL_OT_PaintColor(Operator):
+class VCOLTOOLS_OT_PaintColor(Operator):
 	bl_idname = "vertex_color_edit_tools.paint_color"
 	bl_label = "Paint Vertex Colors"
 	bl_description = "Set selected vertex colors"
@@ -91,7 +91,7 @@ class EDITVERTCOL_OT_PaintColor(Operator):
 		return {'FINISHED'}
 
 
-class EDITVERTCOL_OT_SelectLinkedVertexColor(Operator):
+class VCOLTOOLS_OT_SelectLinkedVertexColor(Operator):
 	bl_idname = "vertex_color_edit_tools.select_linked_color"
 	bl_label = "Select Linked Vertex Color"
 	bl_description = "Select elements connected to the active element with similar vertex color"
@@ -144,7 +144,7 @@ class EDITVERTCOL_OT_SelectLinkedVertexColor(Operator):
 		return {'FINISHED'}
 
 
-class EDITVERTCOL_OT_SelectSimilarVertexColor(Operator):
+class VCOLTOOLS_OT_SelectSimilarVertexColor(Operator):
 	bl_idname = "vertex_color_edit_tools.select_similar_color"
 	bl_label = "Select Similar Vertex Color"
 	bl_description = "Select similar vertices or faces by the vertex colors of the current selection"
@@ -179,7 +179,7 @@ class EDITVERTCOL_OT_SelectSimilarVertexColor(Operator):
 
 
 
-class EDITVERTCOL_OT_Clip(Operator):
+class VCOLTOOLS_OT_Clip(Operator):
 	bl_idname = "vertex_color_edit_tools.clip_all"
 	bl_label = "Clip All Vertex Colors"
 	bl_description = "Clip the color components of the current color attribute between 0 and 1"
@@ -195,7 +195,7 @@ class EDITVERTCOL_OT_Clip(Operator):
 		return {'FINISHED'}
 
 
-class EDITVERTCOL_OT_CopyColorToSelected(Operator):
+class VCOLTOOLS_OT_CopyColorToSelected(Operator):
 	bl_idname = "vertex_color_edit_tools.copy_active_color_to_selected"
 	bl_label = "Copy Color Attribute to Selected from Active"
 	bl_description = "Transfer color attribute from active face to selected"
@@ -217,7 +217,7 @@ class EDITVERTCOL_OT_CopyColorToSelected(Operator):
 		return {'FINISHED'}
 
 
-class EDITVERTCOL_OT_Preview(Operator):
+class VCOLTOOLS_OT_Preview(Operator):
 	bl_idname = "vertex_color_edit_tools.preview"
 	bl_label = "Viewport Preview"
 	bl_description = "Set viewport mode to preview vertex colors"
@@ -237,12 +237,12 @@ class EDITVERTCOL_OT_Preview(Operator):
 
 
 classes = (
-	EDITVERTCOL_OT_PaintColor,
-	EDITVERTCOL_OT_Preview,
-	EDITVERTCOL_OT_Clip,
-	EDITVERTCOL_OT_SelectSimilarVertexColor,
-	EDITVERTCOL_OT_CopyColorToSelected,
-	EDITVERTCOL_OT_SelectLinkedVertexColor
+	VCOLTOOLS_OT_PaintColor,
+	VCOLTOOLS_OT_Preview,
+	VCOLTOOLS_OT_Clip,
+	VCOLTOOLS_OT_SelectSimilarVertexColor,
+	VCOLTOOLS_OT_CopyColorToSelected,
+	VCOLTOOLS_OT_SelectLinkedVertexColor
 )
 
 def register():
