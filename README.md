@@ -11,5 +11,5 @@ Blender add-on for editing, painting, and selecting vertex colors directly in Ed
 
 # Installation
 1. Download the [latest release](https://github.com/EelisOtsamo/VertexColorTools/releases/latest)
-2. In Blender, go to `Edit > Preferences > Add-ons > Install...` and select the downloaded file.
+2. In Blender, go to `Edit > Preferences > Add-ons > Install From Disk...` and select the downloaded file.
 3. Enable the `Vertex Color Tools` add-on.
