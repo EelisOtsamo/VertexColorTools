@@ -49,7 +49,7 @@ class VCOLTOOLS_AddonPreferences(AddonPreferences):
 		layout = self.layout
 		row = layout.row()
 		row.prop(self, "paint_palette_addon_compatibility")
-		layout.label(text="Note: Requires the built-in \"Paint Palette\" add-on to be enabled")
+		layout.label(text="Note: Requires the \"Paint Palettes\" add-on from extensions.blender.org to be enabled")
 		layout.label(text="Paint Palette colors cannot store the alpha channel and values are limited to 0-1")
 
 
