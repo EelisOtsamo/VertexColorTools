@@ -19,39 +19,6 @@ class FilterType(Enum):
 	ACTIVE_VERTEX = 2,
 	ACTIVE = 3
 
-def merge_color_attribute(mesh: bpy.types.Mesh,
-						base_attr_name: str,
-						other_attr_name: str,
-						blend_func: callable,
-						factor: float = 1,
-						clip_colors: bool = True):
-	
-	base_attr: bpy.types.Attribute = mesh.color_attributes.get(base_attr_name)
-	other_attr: bpy.types.Attribute = mesh.color_attributes.get(other_attr_name)
-
-	if not base_attr:
-		raise ContextException(f"Color attribute \"{base_attr_name}\" not found")
-
-	if not other_attr:
-		raise ContextException(f"Color attribute \"{other_attr_name}\" not found")
-
-	bm = bmesh.from_edit_mesh(mesh)
-
-	base_layer, is_corner_attribute, _ = _parse_color_attribute(bm, base_attr)
-	other_layer, is_corner_attribute, _ = _parse_color_attribute(bm, other_attr)
-	
-	if is_corner_attribute:
-		elems = _get_face_loops(bm)
-	else:
-		elems = _get_vertices(bm)
-
-	for elem in elems:
-		_modify_color_attribute(elem, other_layer, blend_func, clip_colors, factor, elem[base_layer])
-
-	bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
-
-
-
 def bright_contrast_color_attribute(mesh: bpy.types.Mesh,
 						brightness: float,
 						contrast: float,
@@ -60,7 +27,7 @@ def bright_contrast_color_attribute(mesh: bpy.types.Mesh,
 	"""
 	The algorithm is by Werner D. Streidt
 	(http://visca.com/ffactory/archives/5-99/msg00021.html)
-	Extracted from blender/source/blender/compositor/realtime_compositor/shaders/library/gpu_shader_compositor_bright_contrast.glsl
+	Ported from blender/source/blender/compositor/realtime_compositor/shaders/library/gpu_shader_compositor_bright_contrast.glsl
 	"""
 	bm = bmesh.from_edit_mesh(mesh)
 
@@ -87,7 +54,7 @@ def bright_contrast_color_attribute(mesh: bpy.types.Mesh,
 	
 
 	for elem in elems:
-		out_rgb = Vector((c * multiplier + offset for c in elem[active_layer][:3]))
+		out_rgb = Vector([c * multiplier + offset for c in elem[active_layer][:3]])
 		
 		if clip_colors:
 			out_rgb = [bl_math.clamp(x, 0.0, 1.0) for x in out_rgb]
@@ -148,7 +115,7 @@ def _flood_fill_select_vertex(vert: BMVert, active_layer: BMLayerItem, threshold
 	while vert_q.qsize() != 0:
 		vert = vert_q.get()
 		for edge in vert.link_edges:
-			other_vert = edge.other_vert(vert)
+			other_vert: BMVert = edge.other_vert(vert) # pyright: ignore[reportAssignmentType] (other_vert cannot be None)
 			if other_vert.select == select:
 				# Skip if already done
 				continue
@@ -209,7 +176,7 @@ def select_similar_color(mesh: bpy.types.Mesh,
 				colors = [loop[active_layer] for loop in vert.link_loops]
 
 			cumulative_distance = 0
-			for i, s_color in enumerate(selection_colors):
+			for i, s_color in enumerate(selection_colors): 
 				distances: list[float] = [(color - s_color).length * 0.5 for color in colors]
 				min_distance = min(distances)
 				min_idx = distances.index(min_distance)
@@ -234,7 +201,7 @@ def select_similar_color(mesh: bpy.types.Mesh,
 				colors = [loop[active_layer] for loop in edge_loops]
 
 			cumulative_distance = 0
-			for i, s_color in enumerate(selection_colors):
+			for i, s_color in enumerate(selection_colors): 
 				distances: list[float] = [(color - s_color).length * 0.5 for color in colors]
 				min_distance = min(distances)
 				min_idx = distances.index(min_distance)
@@ -249,14 +216,14 @@ def select_similar_color(mesh: bpy.types.Mesh,
 		selection_color = selection_colors
 		for elem in (bm.faces if is_corner_attribute else _get_vertices(bm)):
 			if is_corner_attribute:
-				color = _get_average_color(elem.loops, active_layer)
+				color = _get_average_color(elem.loops, active_layer) # pyright: ignore[reportAttributeAccessIssue]
 			else: 
 				color = elem[active_layer]
 			if ignore_alpha:
-				selection_color = selection_color.to_3d()
+				selection_color = selection_color.to_3d() # pyright: ignore[reportAttributeAccessIssue]
 				color = color.to_3d()
 
-			distance = (color - selection_color).length * 0.5
+			distance = (color - selection_color).length * 0.5 # pyright: ignore[reportOperatorIssue]
 			if distance > threshold:
 				continue
 			elem.select = True
@@ -376,14 +343,14 @@ def load_active_color(mesh: bpy.types.Mesh, saved: list[Vector]):
 
 def _get_active_vertex(bm: BMesh):
 	if bm.select_history:
-		elem = bm.select_history[-1]
+		elem = bm.select_history[-1] # pyright: ignore[reportIndexIssue]
 		if isinstance(elem, BMVert):
 			return elem
 	return None
 
 def _get_active_face(bm: BMesh):
 	if bm.select_history:
-		elem = bm.select_history[-1]
+		elem = bm.select_history[-1] # pyright: ignore[reportIndexIssue]
 		if isinstance(elem, BMFace):
 			return elem
 	return None
@@ -451,7 +418,7 @@ def _get_average_color(elems: list[BMVert] | list[BMLoop] | BMVertSeq | BMElemSe
 
 def _modify_color_attribute(elem: BMVert | BMLoop,
 						color_layer: BMLayerItem,
-						func: callable,
+						func: ColorUtils.BlendFunc,
 						clip_colors: bool,
 						factor: float,
 						color: Vector):
@@ -467,15 +434,15 @@ def _modify_color_attribute(elem: BMVert | BMLoop,
 
 def set_selection_color(mesh: bpy.types.Mesh,
 						active_corner_only: bool,
-						blend_func: callable,
+						blend_func: ColorUtils.BlendFunc,
 						factor: float,
 						color: Color,
 						clip_colors: bool) -> None:
 	
 	bm = bmesh.from_edit_mesh(mesh)
 	active_layer, is_corner_attribute, is_byte_color = _parse_color_attribute(bm, mesh.color_attributes.active_color)
-
-	vec_col = Vector(color)
+	
+	vec_col = Vector(color) 
 
 	if is_byte_color:
 		vec_col[:3] = [ColorUtils.linear_to_srgb(x) for x in color[:3]]
@@ -515,11 +482,11 @@ def set_selection_color(mesh: bpy.types.Mesh,
 def get_selection_color(mesh: bpy.types.Mesh) -> Vector:
 	selection_colors, selection_type = _get_selection_colors(mesh, False)
 	if selection_type is None:
-		return selection_colors
+		return selection_colors # pyright: ignore[reportReturnType]
 	
 	average_color = Vector((0,0,0,0))
 	for col in selection_colors:
-		average_color += col
+		average_color += col # pyright: ignore[reportOperatorIssue]
 	return average_color / len(selection_colors)
 
 

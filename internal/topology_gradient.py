@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import Optional
 import bpy
 import bmesh
 from bmesh.types import BMEdge, BMFace, BMLayerItem, BMLoop
@@ -22,8 +23,8 @@ class TopologyExtentClampMode(Enum):
 
 def paint_topology_gradient(mesh: bpy.types.Mesh,
 						mirror: bool,
-						interp_func: callable,
-						blend_func: callable,
+						interp_func: ColorUtils.IntpFunc,
+						blend_func: ColorUtils.BlendFunc,
 						clip_colors: bool,
 						factors: tuple[float,float],
 						colors: tuple[Color,Color],
@@ -35,7 +36,7 @@ def paint_topology_gradient(mesh: bpy.types.Mesh,
 
 	active_layer, is_corner_attribute, is_byte_color = _parse_color_attribute(bm, mesh.color_attributes.active_color)
 	
-	vec_colors = (Vector(colors[0]), Vector(colors[1]))
+	vec_colors = (Vector(colors[0]), Vector(colors[1])) 
 	direction = direction.copy()
 
 	if is_byte_color:
@@ -66,8 +67,8 @@ def paint_topology_gradient(mesh: bpy.types.Mesh,
 	bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
 
 def _find_edge_extent(edge: BMEdge, direction: Vector):
-	loop_0: BMLoop = None
-	first_face: BMFace = None
+	loop_0: Optional[BMLoop] = None
+	first_face: Optional[BMFace] = None
 	for face_idx in range(1, MAX_EDGE_TOPOLOGY_EXTENT):
 		if not loop_0:
 			loop_0 = _find_first_loop(edge, direction)
@@ -77,16 +78,15 @@ def _find_edge_extent(edge: BMEdge, direction: Vector):
 				return 0
 			
 			first_face = loop_0.face
-		else:
-			loop_0 = loop_0.link_loop_next.link_loop_next.link_loop_radial_next
+		loop_0 = loop_0.link_loop_next.link_loop_next.link_loop_radial_next
 
 
 		loop_1 = loop_0.link_loop_next
 		loop_front_0 = loop_1.link_loop_next
-		loop_front_1 = loop_0.link_loop_prev
+		#loop_front_1 = loop_0.link_loop_prev
 
-		loop_back_0 = loop_0.link_loop_radial_next
-		loop_back_1 = loop_back_0.link_loop_next
+		#loop_back_0 = loop_0.link_loop_radial_next
+		#loop_back_1 = loop_back_0.link_loop_next
 
 		cur_face = loop_0.face
 		next_face = loop_front_0.link_loop_radial_next.face
@@ -118,8 +118,8 @@ def _paint_topology_gradient_for_edges(
 						float],
 						colors: tuple[Vector,Vector],
 						color_layer: BMLayerItem,
-						interp_func: callable,
-						blend_func: callable,
+						interp_func: ColorUtils.IntpFunc,
+						blend_func: ColorUtils.BlendFunc,
 						clip_colors: bool,
 						extend_clamp_mode: TopologyExtentClampMode,
 						direction: Vector):
@@ -153,15 +153,14 @@ def _paint_topology_gradient_for_edges(
 		integer_distance = (extent % 1) == 0
 		is_partial_step = extent < 1
 
-		loop_0: BMLoop = None
-		first_face: BMFace = None
-		prev_face: BMFace = None
+		loop_0: Optional[BMLoop] = None
+		first_face: Optional[BMFace] = None
+		prev_face: Optional[BMFace] = None
 		step_count = last_face_idx + (0 if is_partial_step else 1)
 		for face_idx in range(step_count):
-			if not loop_0:
+			if loop_0 is None:
 				loop_0 = _find_first_loop(edge, direction)
-				
-				if not loop_0:
+				if loop_0 is None:
 					# No next loop found in the direction
 					return 0
 				
@@ -176,7 +175,7 @@ def _paint_topology_gradient_for_edges(
 			loop_back_1 = loop_back_0.link_loop_next
 
 			loop_front_0 = loop_1.link_loop_next
-			loop_front_1 = loop_0.link_loop_prev
+			#loop_front_1 = loop_0.link_loop_prev
 
 			cur_face = loop_0.face
 			is_ngon = len(cur_face.verts) > 4
@@ -237,7 +236,7 @@ def _paint_topology_gradient_for_edges(
 					_modify_color_attribute(loop_0, color_layer, blend_func, clip_colors, blend_fac, blend_col)
 					_modify_color_attribute(loop_1, color_layer, blend_func, clip_colors, blend_fac, blend_col)
 				else:
-					# Decimal distance:
+					# Non integer distance:
 					#	Skip first back loops
 					# 	Front loops of the last edge are colored as well 
 					if face_idx != 0:

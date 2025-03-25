@@ -15,10 +15,10 @@
 # - https://bottosson.github.io/posts/oklab/
 #
 
+import typing
 from bl_math import clamp
 from functools import partial
 from mathutils import Vector, Matrix
-
 
 
 _HUE_INTP_NEAR = 0
@@ -247,18 +247,18 @@ def blend_alpha_mix(fac: float, col1: Vector, col2: Vector) -> Vector:
 def absv(col: Vector) -> Vector:
 	return Vector([abs(c) for c in col])
 
-def maxv(*vecs):
+def maxv(*vecs: Vector) -> Vector:
 	max_components = [max(*components) for components in zip(*vecs)]
 	return Vector(tuple(max_components))
 
-def srgb_to_linear(c):
+def srgb_to_linear(c: float) -> float:
 	'''Ported from source/blender/blenlib/intern/math_color.cc'''
 	if c < 0.4045:
 		return 0 if (c < 0) else c * (1.0 / 12.92)
 	return pow((c+0.055)*(1.0/1.055), 2.4)
 
 
-def linear_to_srgb(c):
+def linear_to_srgb(c: float) -> float:
 	'''Ported from source/blender/blenlib/intern/math_color.cc'''
 	if c < 0.0031308:
 		return 0 if (c < 0) else c * 12.92
@@ -271,8 +271,8 @@ def minv(*cols: Vector) -> Vector:
 	if len(cols) == 1:
 		return m
 	for col in cols[1:]:
-		for i, c in enumerate(col):
-			m[i] = min(m[i], c)
+		for attr in ('x', 'y', 'z', 'w'):
+			setattr(m, attr, min(getattr(m, attr), getattr(col, attr)))
 	return m
 
 def hsv_to_rgb(hsva: Vector) -> Vector:
@@ -480,8 +480,8 @@ def mix_oklab(fac: float, col1: Vector, col2: Vector) -> Vector:
 	rgb1 = col1.xyz
 	rgb2 = col2.xyz
 
-	lms1 = Vector(((pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb1)))
-	lms2 = Vector(((pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb2)))
+	lms1 = Vector([pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb1])
+	lms2 = Vector([pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb2])
 
 	lms_mix = lms1.lerp(lms2, fac)
 
@@ -493,8 +493,8 @@ def mix_oklab_smoothstep(fac: float, col1: Vector, col2: Vector) -> Vector:
 	rgb1 = col1.xyz
 	rgb2 = col2.xyz
 
-	lms1 = Vector(((pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb1)))
-	lms2 = Vector(((pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb2)))
+	lms1 = Vector([pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb1])
+	lms2 = Vector([pow(v, 1.0/3.0) for v in RGB_TO_CONE @ rgb2])
 
 	# Smoothstep
 	fac2 = fac * fac
@@ -505,6 +505,8 @@ def mix_oklab_smoothstep(fac: float, col1: Vector, col2: Vector) -> Vector:
 	return Vector((*outrgb, col1.w))
 
 
+BlendFunc = typing.Callable[[float, Vector, Vector], Vector]
+IntpFunc = typing.Callable[[float, Vector, Vector], Vector]
 
 """ Blend type enum """
 BLEND_MODES = {
@@ -557,14 +559,14 @@ HSL_INPT_MODES = {
 	'CCW'	: (partial(mix_hsl, _HUE_INTP_CCW),		"Counter-Clockwise",	""),
 }
 
+
 """ Enum property items for ui elements """
-INPT_MODE_ITEMS = (
+INPT_MODE_ITEMS = [
 	('RGB', "RGB",		"Interpolate in linear RGB color space"),
 	('HSV', "HSV",		"Interpolate in the HSV color space"),
 	('HSL', "HSL",		"Interpolate in the HSL color space"),
 	('OKLAB', "Oklab",	"Interpolate in the Oklab color space"),
-)
-
+]
 
 _blend_mode_separator_keys = ["ALPHA_SUBTRACT", "HUE", "DIFFERENCE", "OVERLAY", "LIGHTEN", "DARKEN"]
 

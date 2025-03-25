@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
-from bpy.types import Context, Mesh, Event, Operator, UILayout, SpaceView3D
+
+from bpy.types import Context, Object, Mesh, Event, Operator, UILayout, SpaceView3D
 
 from bpy.props import (
 	EnumProperty,
@@ -226,8 +227,8 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 	def execute(self, context: Context):
 		blend_func = BLEND_MODES[self.blend_mode][0]
 
-		object = context.active_object
-		mesh: Mesh = object.data
+		object: Object = context.active_object # pyright: ignore[reportAssignmentType]
+		mesh: Mesh = object.data # pyright: ignore[reportAssignmentType]
 		inv_world_mat = object.matrix_world.inverted_safe()
 		position_begin_obj = inv_world_mat @ self.position_begin
 		position_end_obj = inv_world_mat @ self.position_end
@@ -236,15 +237,16 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 		gradient_type = GradientType(self.gradient_type)
 		extend_mode = GradientExtendMode(self.extend_mode)
 		sharp_edge_mode = GradientSharpEdgeMode(self.sharp_edge_mode)
+
 		match self.interpolation_color_mode:
-			case 'RGB':
-				intp_func = RGB_INTP_MODES[self.interpolation_type][0]
 			case 'HSV':
 				intp_func = HSV_INPT_MODES[self.interpolation_hue_type][0]
 			case 'HSL':
 				intp_func = HSL_INPT_MODES[self.interpolation_hue_type][0]
 			case 'OKLAB':
 				intp_func = OKLAB_INTP_MODES[self.interpolation_type][0]
+			case _:
+				intp_func = RGB_INTP_MODES[self.interpolation_type][0]
 
 		paint_gradient(
 			mesh,
@@ -265,7 +267,12 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 		return {'FINISHED'}
 	
 	@staticmethod
-	def draw_callback_px(self, context: Context):
+	def draw_callback_px(self, context: Context): # pyright: ignore[reportSelfClsParameterName]
+		"""
+		Draw the gradient line and start/end points in the viewport.
+		Static method to be usable as a callback for `SpaceView3D.draw_handler_add`
+		"""
+
 		gpu.state.blend_set('ALPHA')
 		gpu.state.line_width_set(8)
 		gpu.state.point_size_set(10)
@@ -300,10 +307,12 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 			axis_start = self.position_begin
 			axis_end = axis_start + self._axis_dir
 			axis = (axis_end - axis_start).normalized()
-			a, b = mathutils.geometry.intersect_line_line(ray_origin, ray_direction * 1000, axis_start - axis * 1000, axis_end + axis * 1000)
-			if self._snap:
-				return self.snap_to_vert(context, b)
-			return b
+			intersections = mathutils.geometry.intersect_line_line(ray_origin, ray_direction * 1000, axis_start - axis * 1000, axis_end + axis * 1000)
+			if intersections:
+				intersection_point = intersections[1]
+				if self._snap:
+					return self.snap_to_vert(context, intersection_point)
+				return intersection_point
 
 		fallback_depth_pos = self.position_begin if self._state != self.PaintState.NONE else context.scene.cursor.location
 
@@ -323,10 +332,11 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 		return self.snap_to_vert(context, hit_location)
 
 	def snap_to_vert(self, context: Context, co: Vector) -> Vector:
-		inv_world_mat = context.active_object.matrix_world.inverted_safe()
+		active_object: Object = context.active_object # pyright: ignore[reportAssignmentType]
+		inv_world_mat = active_object.matrix_world.inverted_safe()
 		find_co = inv_world_mat @ co
-		co, index, dist = self._kd.find(find_co)
-		return context.active_object.matrix_world @ co
+		co, index, dist = self._kd.find(find_co) # pyright: ignore[reportArgumentType]
+		return active_object.matrix_world @ co
 
 	@staticmethod
 	def static_draw(data, layout: UILayout):
@@ -371,7 +381,8 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 		self._viz_color_begin.w = 0
 		self._viz_color_end.w = 0
 
-		mesh: Mesh = context.active_object.data
+		active_object: Object = context.active_object # pyright: ignore[reportAssignmentType]
+		mesh: Mesh = active_object.data # pyright: ignore[reportAssignmentType]
 
 		self._stored_colors = save_active_color(mesh)
 	
@@ -381,10 +392,10 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 
 		self._kd = mathutils.kdtree.KDTree(len(mesh.vertices))
 		depsgraph = context.evaluated_depsgraph_get()
-		self._bvhtree = mathutils.bvhtree.BVHTree.FromObject(bpy.context.active_object, depsgraph)
+		self._bvhtree = mathutils.bvhtree.BVHTree.FromObject(active_object, depsgraph)
 
 		for i, v in enumerate(mesh.vertices):
-			self._kd.insert(v.co, i)
+			self._kd.insert(v.co, i) # pyright: ignore[reportArgumentType]
 
 		self._kd.balance()
 		self._viz_position = self.get_mouse_3d_pos(context, event)
@@ -398,9 +409,9 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 		self._axis_dir = self.AXIS_DIR[self._axis.value % 3]
 		if self._axis.value > 2:
 			# local
-			o = context.active_object
-			m = o.matrix_world.to_quaternion()
-			self._axis_dir = m @ self._axis_dir
+			active_object: Object = context.active_object # pyright: ignore[reportAssignmentType]
+			rotation = active_object.matrix_world.to_quaternion()
+			self._axis_dir = rotation @ self._axis_dir
 		self.update_status(context)
 
 
@@ -457,7 +468,7 @@ class EDITVERTCOL_OT_PaintGradient(Operator):
 	def modal(self, context: Context, event: Event):
 		context.area.tag_redraw()
 
-		mesh: Mesh = context.active_object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 
 		# Allow navigation
 		if event.type in ['MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE']:

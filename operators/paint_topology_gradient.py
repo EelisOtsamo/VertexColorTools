@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
+
 from bpy.types import Context, Mesh, Event, Operator, UILayout
 
 from bpy.props import (
@@ -153,20 +154,20 @@ class EDITVERTCOL_OT_PaintGradientTopology(Operator):
 		return poll_active_color_attribute(cls, context)
 
 	def execute(self, context: Context):
+		mesh: Mesh = context.active_object.data # type: ignore
+
 		blend_func = BLEND_MODES[self.blend_mode][0]
 
-		object = context.active_object
-		mesh: Mesh = object.data
-
+		
 		match self.interpolation_color_mode:
-			case 'RGB':
-				intp_func = RGB_INTP_MODES[self.interpolation_type][0]
 			case 'HSV':
 				intp_func = HSV_INPT_MODES[self.interpolation_hue_type][0]
 			case 'HSL':
 				intp_func = HSL_INPT_MODES[self.interpolation_hue_type][0]
 			case 'OKLAB':
 				intp_func = OKLAB_INTP_MODES[self.interpolation_type][0]
+			case _:
+				intp_func = RGB_INTP_MODES[self.interpolation_type][0]
 
 
 		extent_clamp_mode = TopologyExtentClampMode(self.extent_clamp_mode)
@@ -187,9 +188,9 @@ class EDITVERTCOL_OT_PaintGradientTopology(Operator):
 			
 		except ContextException as e:
 			self.report({'ERROR_INVALID_INPUT'}, e.args[0])
-			return {'CANCELLED'}
+			return {"CANCELLED"}
 
-		return {'FINISHED'}
+		return {"FINISHED"}
 	
 
 	def update_status(self, context: Context):
@@ -234,7 +235,7 @@ class EDITVERTCOL_OT_PaintGradientTopology(Operator):
 		self.static_draw(self, self.layout)
 
 	def invoke(self, context: Context, event: Event):
-		mesh: Mesh = context.active_object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 
 		self._start_coord = Vector((event.mouse_x, event.mouse_y))
 		self._stored_colors = save_active_color(mesh)
@@ -244,8 +245,8 @@ class EDITVERTCOL_OT_PaintGradientTopology(Operator):
 
 	def modal(self, context: Context, event: Event):
 		context.area.tag_redraw()
-		mesh: Mesh = context.active_object.data
-
+		mesh: Mesh = context.active_object.data # type: ignore
+		stored_colors: list[Vector] = self._stored_colors # type: ignore (Set in `invoke`)
 		do_refresh = False
 
 		if self._snap == event.ctrl:
@@ -259,14 +260,14 @@ class EDITVERTCOL_OT_PaintGradientTopology(Operator):
 			
 			coord = Vector((event.mouse_x, event.mouse_y))
 			factor = rv3d.view_distance * TOPOLOGY_GRADIENT_MOUSE_SENSITIVITY
-			diff = coord - self._start_coord
+			diff = coord - self._start_coord # pyright: ignore[reportOperatorIssue]
 			relative_diff = Vector((diff[0] / context.region.width, diff[1] / context.region.height)) * factor
 			self._distance = relative_diff.length
 			r = Vector(rv3d.view_matrix[0][:3])
 			u = Vector(rv3d.view_matrix[1][:3])
 			self.direction[:] = (diff[0] * r + diff[1] * u)[:]
 			self.direction.normalize()
-			load_active_color(mesh, self._stored_colors)
+			load_active_color(mesh, stored_colors)
 			self.update_status(context)
 			do_refresh = True
 			
@@ -293,13 +294,13 @@ class EDITVERTCOL_OT_PaintGradientTopology(Operator):
 							
 				case 'ESC' | 'RIGHTMOUSE':
 					# Cancel
-					load_active_color(mesh, self._stored_colors)
+					load_active_color(mesh, stored_colors)
 					self.modal_cleanup(context)
 					return {'CANCELLED'}
 
 		if do_refresh:
 			self.distance = ceil(self._distance) if self._snap else self._distance
-			load_active_color(mesh, self._stored_colors)
+			load_active_color(mesh, stored_colors)
 			if 'FINISHED' not in self.execute(context):
 				self.modal_cleanup(context)
 				return {'CANCELLED'}

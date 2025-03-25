@@ -32,8 +32,8 @@ def paint_gradient(mesh: bpy.types.Mesh,
 				extend_mode: GradientExtendMode,
 				boundary_sharp_mode: GradientSharpEdgeMode,
 				gradient_type: GradientType,
-				interp_func: callable,
-				blend_func: callable,
+				interp_func: ColorUtils.IntpFunc,
+				blend_func: ColorUtils.BlendFunc,
 				clip_colors: bool,
 				factor: tuple[float,float],
 				color: tuple[Color,Color],
@@ -42,8 +42,8 @@ def paint_gradient(mesh: bpy.types.Mesh,
 	bm = bmesh.from_edit_mesh(mesh)
 	active_layer, is_corner_attribute, is_byte_color = _parse_color_attribute(bm, mesh.color_attributes.active_color)
 
-	col0 = Vector(color[0])
-	col1 = Vector(color[1])
+	col0 = Vector(color[0]) 
+	col1 = Vector(color[1]) 
 
 	if is_byte_color:
 		clip_colors = False
@@ -84,7 +84,7 @@ def paint_gradient(mesh: bpy.types.Mesh,
 		else:
 			verts = bm.verts
 		# Extend filter
-		if extend_mode:
+		if extend_mode != GradientExtendMode.OFF:
 			elems = verts
 			coords = [vert.co for vert in elems]
 		else:
@@ -141,9 +141,9 @@ def _filter_loops_from_faces(faces: list[BMFace] | BMFaceSeq,
 				extend_mode: GradientExtendMode,
 				gradient_type: GradientType,
 				l0: Vector,
-				l1: Vector) -> tuple[list[BMFace], list[Vector]]:
+				l1: Vector) -> tuple[list[BMFace] | list[BMLoop], list[Vector]]:
 	
-	elems: list[BMFace] = []
+	elems: list[BMFace] | list[BMLoop] = []
 	coords: list[Vector] = []
 	radius_squared = (l1 - l0).length_squared
 

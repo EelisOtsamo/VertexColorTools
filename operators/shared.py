@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from bpy.types import Context, Operator
 from ..internal.color_utils import HSV_INPT_MODES, RGB_INTP_MODES
 
-def poll_active_color_attribute(cls, context) -> bool:
+def poll_active_color_attribute(cls: type[Operator], context: Context) -> bool:
 	'''
 	A common poll function used by all edit mode operators that need to access the active color attribute of the current mesh
 	'''

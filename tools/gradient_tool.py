@@ -21,7 +21,7 @@ class GradientTool(WorkSpaceTool):
 			),
 	)
 
-	def draw_settings(context: Context, layout: UILayout, tool: WorkSpaceTool, extra = False):
+	def draw_settings(context: Context, layout: UILayout, tool: WorkSpaceTool, extra = False): # pyright: ignore[reportSelfClsParameterName, reportGeneralTypeIssues]
 		props = tool.operator_properties(EDITVERTCOL_OT_PaintGradient.bl_idname)
 
 		region_is_header = bpy.context.region.type == 'TOOL_HEADER'

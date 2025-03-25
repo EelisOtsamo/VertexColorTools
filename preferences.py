@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+# type: ignore
+
 import sys
 import addon_utils
 
@@ -26,10 +28,10 @@ class EDITVERTCOL_AddonPreferences(AddonPreferences):
 	_property_callbacks: dict = {}
 
 	@classmethod
-	def register_callback(self, attribute_name: str, callback: callable):
-		if not attribute_name in __class__._property_callbacks:
-			__class__._property_callbacks[attribute_name] = []
-		__class__._property_callbacks[attribute_name].append(callback)
+	def register_callback(cls, attribute_name: str, callback):
+		if not attribute_name in cls._property_callbacks:
+			cls._property_callbacks[attribute_name] = []
+		cls._property_callbacks[attribute_name].append(callback)
 
 
 	def notify(self, attribute_name: str):
@@ -37,9 +39,9 @@ class EDITVERTCOL_AddonPreferences(AddonPreferences):
 			callback(self.get(attribute_name))
 
 
-	palette_addon_enabled : bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
+	palette_addon_enabled: bpy.props.BoolProperty(default=False, options={'SKIP_SAVE'})
 
-	paint_palette_addon_compatibility : bpy.props.BoolProperty(
+	paint_palette_addon_compatibility: bpy.props.BoolProperty(
 		name="Paint Palette Intergration",
 		default=True,
 		description="Enable to use the Blender built-in Paint Palette add-on for color palettes, if it is enabled",

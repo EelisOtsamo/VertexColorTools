@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
-from bpy.types import Context, SpaceView3D, Mesh, Object, Operator
+
+from bpy.types import Context, SpaceView3D, Mesh, Operator
 import bpy.utils
 from bpy.props import (
 	FloatProperty,
@@ -72,8 +73,7 @@ class EDITVERTCOL_OT_PaintColor(Operator):
 	def execute(self, context: Context):
 		blend_func = BLEND_MODES[self.blend_mode][0]
 
-		object = context.active_object
-		mesh: Mesh = object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 		
 		try:
 			set_selection_color(
@@ -118,14 +118,14 @@ class EDITVERTCOL_OT_SelectLinkedVertexColor(Operator):
 		layout.use_property_split = True
 		layout.prop(self, 'threshold')
 		layout.prop(self, 'deselect')
-		if context.active_object.data.color_attributes.active_color.domain == 'CORNER':
+
+		if context.active_object.data.color_attributes.active_color.domain == 'CORNER': # pyright: ignore (Validated in `poll`)
 			layout.prop(self, 'check_corners')
 		layout.prop(self, 'ignore_alpha')
 
 
 	def execute(self, context: Context):
-		object: Object = context.active_object
-		mesh: Mesh = object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 
 		if mesh.total_vert_sel == 0:
 			self.report({'ERROR_INVALID_INPUT'}, "No selection")
@@ -161,8 +161,7 @@ class EDITVERTCOL_OT_SelectSimilarVertexColor(Operator):
 		return poll_active_color_attribute(cls, context)
 
 	def execute(self, context: Context):
-		object: Object = context.active_object
-		mesh: Mesh = object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 
 		if mesh.total_vert_sel == 0:
 			self.report({'ERROR_INVALID_INPUT'}, "No selection")
@@ -188,12 +187,10 @@ class EDITVERTCOL_OT_Clip(Operator):
 
 	@classmethod
 	def poll(cls, context: Context):
-		if not poll_active_color_attribute(cls, context):
-			return
+		return poll_active_color_attribute(cls, context)
 
 	def execute(self, context: Context):
-		object: Object = context.active_object
-		mesh: Mesh = object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 		clip_color_attribute(mesh)
 		return {'FINISHED'}
 
@@ -209,8 +206,7 @@ class EDITVERTCOL_OT_CopyColorToSelected(Operator):
 		return poll_active_color_attribute(cls, context)
 
 	def execute(self, context: Context):
-		object: Object = context.active_object
-		mesh: Mesh = object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 
 		try:
 			copy_active_color_to_selected(mesh)
@@ -230,11 +226,11 @@ class EDITVERTCOL_OT_Preview(Operator):
 	def poll(cls, context: Context):
 		if not (isinstance(context.space_data, SpaceView3D)):
 			cls.poll_message_set("Current space is not a 3D View space.")
-			return
+			return False
 		return True
 
 	def invoke(self, context: Context, event):
-		space: SpaceView3D = context.space_data
+		space: SpaceView3D = context.space_data # pyright: ignore[reportAssignmentType]
 		space.shading.color_type = 'VERTEX'
 		space.shading.type = 'SOLID'
 		return {'FINISHED'}

@@ -1,0 +1,38 @@
+{
+    "pythonVersion": "3.11",
+    "typeCheckingMode": "standard",
+    "include": [
+        "/"
+    ],
+    "exclude": [
+        "**/__pycache__",
+        ".**"
+    ],
+    "defineConstant": {
+        "DEBUG": true
+    },
+    "reportMissingImports": "error",
+    "reportMissingTypeStubs": false,
+    "reportInvalidTypeForm": "none",
+    "executionEnvironments": [
+        {
+            "root": "internal",
+            "reportArgumentType": "none"
+        },
+        {
+            "root": "operators",
+            "reportAttributeAccessIssue": "none",
+            "reportIncompatibleMethodOverride": "none"
+        },
+        {
+            "root": "tools",
+            "reportAttributeAccessIssue": "none",
+            "reportIncompatibleMethodOverride": "none"
+        },
+        {
+            "root": "ui",
+            "reportAttributeAccessIssue": "none",
+            "reportIncompatibleMethodOverride": "none"
+        }
+    ],
+}

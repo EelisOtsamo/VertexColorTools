@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+# type: ignore
+
 import addon_utils
 import bpy
 import sys

@@ -2,6 +2,7 @@
 
 
 from bpy.types import (
+	Mesh,
 	Panel,
 	UILayout,
 	Context,
@@ -70,7 +71,7 @@ class EDITVERTCOL_PT_Panel(Panel):
 
 		can_active = False
 		try:
-			color_attribute: Attribute = context.edit_object.data.color_attributes.active_color
+			color_attribute: Attribute = context.edit_object.data.color_attributes.active_color # type: ignore
 			current_domain = color_attribute.domain
 			if current_domain == 'CORNER':
 				can_active = True
@@ -153,7 +154,7 @@ class EDITVERTCOL_PT_ConvertPanel(Panel):
 		return context.mode == 'EDIT_MESH' and context.edit_object and context.edit_object
 
 	def draw(self, context: Context):
-		mesh = context.edit_object.data
+		mesh: Mesh = context.edit_object.data # type: ignore
 		layout = self.layout
 		col = layout.column()
 		self.draw_shortcuts(context, col)
@@ -178,7 +179,7 @@ class EDITVERTCOL_PT_ConvertPanel(Panel):
 
 	def draw_shortcuts(self, context: Context, col: UILayout):
 		try:
-			color_attribute: Attribute = context.edit_object.data.color_attributes.active_color
+			color_attribute: Attribute = context.edit_object.data.color_attributes.active_color # pyright: ignore
 			current_domain = color_attribute.domain
 			current_data_type = color_attribute.data_type
 		except AttributeError as e:
@@ -276,7 +277,7 @@ class EDITVERTCOL_PT_PalettePanel(Panel):
 		layout = self.layout
 
 		row = layout.row(align=True)
-		row.menu("PALETTE_MT_menu", text=mod.PALETTE_MT_menu.bl_label)
+		row.menu("PALETTE_MT_menu", text=mod.PALETTE_MT_menu.bl_label) # pyright: ignore
 		row.operator("palette.preset_add", text="", icon='ADD').remove_active = False
 		row.operator("palette.preset_add", text="", icon='REMOVE').remove_active = True
 
@@ -302,7 +303,7 @@ class EDITVERTCOL_PT_PalettePanel(Panel):
 			columns = 16
 
 		for i, color in enumerate(palette_props.colors):
-			if not i % columns:
+			if i % columns == 0:
 				row1 = laycol.row(align=True)
 				row1.scale_y = 0.8
 				row2 = laycol.row(align=True)
@@ -310,8 +311,8 @@ class EDITVERTCOL_PT_PalettePanel(Panel):
 
 			active = i == palette_props.current_color_index
 			icons = "LAYER_ACTIVE" if active else "LAYER_USED"
-			row1.prop(palette_props.colors[i], "color", event=True, toggle=True)
-			row2.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text=" ", emboss=not active, icon=icons).color_index = i
+			row1.prop(palette_props.colors[i], "color", event=True, toggle=True) # pyright: ignore
+			row2.operator(EDITVERTCOL_OT_PaletteColorSelect.bl_idname, text=" ", emboss=not active, icon=icons).color_index = i # pyright: ignore
 
 		layout = self.layout
 		row = layout.row()

@@ -1,15 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import bpy
-from bpy.types import Operator, Context
+
+from bpy.types import Operator, Context, Object, Mesh
 
 from bpy.props import (
 	EnumProperty,
 	FloatProperty,
 	BoolProperty,
 )
-
-from ..internal.color_utils import BLEND_MODE_ITEMS
 
 from .shared import poll_active_color_attribute
 
@@ -99,8 +98,8 @@ class EDITVERTCOL_OT_BrightContrast(Operator):
 		return poll_active_color_attribute(cls, context)
 
 	def execute(self, context: Context):
-		object: bpy.types.Object = context.active_object
-		mesh: bpy.types.Mesh = object.data
+		object: Object = context.active_object # pyright: ignore[reportAssignmentType]
+		mesh: Mesh = object.data # pyright: ignore[reportAssignmentType]
 		bright_contrast_color_attribute(mesh,
 								  self.brightness,
 								  self.contrast,

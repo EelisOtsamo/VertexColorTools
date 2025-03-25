@@ -6,10 +6,8 @@ from .gradient_tool import GradientTool
 from .topology_gradient_tool import TopologyGradientTool
 
 def register_tools():
-	register_tool(GradientTool, separator=True, group=False)
-	register_tool(TopologyGradientTool, after={GradientTool.bl_idname})
-
-
+	register_tool(GradientTool, separator=True, group=False) # pyright: ignore[reportArgumentType]
+	register_tool(TopologyGradientTool, after={GradientTool.bl_idname}) # pyright: ignore[reportArgumentType]
 
 def unregister_tools():
 	unregister_tool(GradientTool)

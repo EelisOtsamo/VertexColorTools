@@ -1,17 +1,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+
 import bpy
-from bpy.types import Context, Event, Mesh, Object, Operator
+
+from bpy.types import Context, Event, Mesh, Operator, Attribute
 import bpy.utils
 
 from bpy.props import (
 	BoolProperty,
-	CollectionProperty,
 	IntProperty
 )
 import mathutils
 
-from ..internal.color_utils import linear_to_srgb, srgb_to_linear
+from ..internal.color_utils import srgb_to_linear
 
 from ..internal.color_attribute import (
 	get_selection_color,
@@ -79,10 +80,9 @@ class EDITVERTCOL_OT_CopyActiveCorner(Operator):
 
 	def execute(self, context: Context):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
-		object: Object = context.active_object
-		mesh: Mesh = object.data
+		mesh: Mesh = context.active_object.data # type: ignore
 
-		color_attribute = mesh.color_attributes.active_color
+		color_attribute: Attribute = mesh.color_attributes.active_color # pyright: ignore[reportAssignmentType]
 		select_mode = context.scene.tool_settings.mesh_select_mode
 
 		if color_attribute.domain != 'CORNER':
@@ -140,9 +140,9 @@ class EDITVERTCOL_OT_CopySelected(Operator):
 
 	def execute(self, context: Context):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
-		object: Object = context.active_object
-		mesh: Mesh = object.data
-		color_attribute = mesh.color_attributes.active_color
+		mesh: Mesh = context.active_object.data # type: ignore
+
+		color_attribute: Attribute = mesh.color_attributes.active_color # pyright: ignore[reportAssignmentType]
 		if mesh.total_vert_sel == 0:
 			self.report({'ERROR_INVALID_INPUT'}, "No selection")
 			return {'FINISHED'}
@@ -190,7 +190,7 @@ class EDITVERTCOL_OT_PaletteColorAdd(Operator):
 
 	def execute(self, context: Context):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
-		palette: CollectionProperty = context.scene.EditVertexColorsPalette
+		palette = context.scene.EditVertexColorsPalette
 		item = palette.add()
 		item.color = props.brush_color
 
@@ -206,7 +206,7 @@ class EDITVERTCOL_OT_PaletteColorRemove(Operator):
 	def execute(self, context: Context):
 		props: EDITVERTCOL_PropertyGroup = context.scene.EditVertexColorsProperties
 		
-		palette: CollectionProperty = context.scene.EditVertexColorsPalette
+		palette = context.scene.EditVertexColorsPalette
 		num_colors = len(palette)
 		if num_colors == 0:
 			return {'FINISHED'}
@@ -229,7 +229,7 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 	color_index: IntProperty()
 
 	@classmethod
-	def poll(self, context: Context):
+	def poll(cls, context: Context):
 		return context.area.type == 'VIEW_3D' and context.mode == 'EDIT_MESH'
 
 	def invoke(self, context: Context, event: Event):
@@ -239,9 +239,9 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 			self.execute(context)
 		
 		if addon_preferences().palette_addon_enabled and palette_addon():
-			palette_props = context.scene.palette_props
+			palette_props = context.scene.palette_props 
 			palette_props.current_color_index = self.color_index
-			palette_addon().update_panels()
+			palette_addon().update_panels() # pyright: ignore[reportOptionalMemberAccess]
 
 		else:
 			palette = context.scene.EditVertexColorsPalette
@@ -257,7 +257,7 @@ class EDITVERTCOL_OT_PaletteColorSelect(Operator):
 			palette_props = context.scene.palette_props
 			palette_color = palette_props.colors[self.color_index].color
 
-			color = [0,0,0,1]
+			color = [0.0, 0.0, 0.0, 1.0]
 			color[:3] = [srgb_to_linear(c) for c in palette_color[:3]]
 			
 		else:
